@@ -32,19 +32,25 @@ input[type=text],input[type=password],input[type=number],select,textarea{
 input:focus,select:focus,textarea:focus{outline:2px solid rgba(26,115,255,.25);border-color:var(--accent)}
 label{font-size:13px;color:var(--muted);display:block;margin:12px 0 4px}
 .form-row{display:flex;gap:12px;flex-wrap:wrap}
-.form-row > div{flex:1;min-width:200px}
+.form-row > div{flex:1;min-width:190px}
 .checkbox-row{display:flex;align-items:center;gap:8px;margin:10px 0}
 .checkbox-row input{width:16px;height:16px;accent-color:var(--accent)}
-.site-item{display:flex;align-items:center;gap:10px;padding:10px 12px;border:1px solid var(--line);border-radius:10px;margin-bottom:8px;background:#fafbfe}
-.site-item .name{flex:1;min-width:120px;font-weight:600;font-size:14px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.site-item .url{flex:2;color:var(--muted);font-size:12.5px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;word-break:break-all}
+.checkbox-row label{margin:0;color:var(--text)}
+.site-item{display:flex;align-items:center;gap:10px;padding:10px 12px;border:1px solid var(--line);border-radius:10px;margin-bottom:8px;background:#fafbfe;flex-wrap:wrap}
+.site-item .main{flex:1;min-width:220px}
+.site-item .name{font-weight:600;font-size:14px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.site-item .url{color:var(--muted);font-size:12.5px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.site-item .schedule{font-size:12px;color:var(--accent-dark);background:#e8effd;border-radius:6px;padding:1px 8px;margin-top:3px;display:inline-block}
+.site-item .ops{display:flex;align-items:center;gap:6px}
 .site-item .switch{display:inline-flex;align-items:center;cursor:pointer;margin-left:4px}
 .site-item .switch input{display:none}
 .site-item .switch .track{width:36px;height:20px;background:#cfd6e2;border-radius:10px;position:relative;transition:background .15s}
 .site-item .switch .track::after{content:"";position:absolute;top:2px;left:2px;width:16px;height:16px;border-radius:50%;background:#fff;transition:left .15s}
 .site-item .switch input:checked + .track{background:var(--ok)}
 .site-item .switch input:checked + .track::after{left:18px}
-.site-item .del{background:none;border:none;color:var(--bad);cursor:pointer;font-size:13px;padding:4px 6px}
+.site-item .ops button{background:none;border:none;color:var(--accent);cursor:pointer;font-size:13px;padding:4px 6px}
+.site-item .ops .del{color:var(--bad)}
+.form-panel{border:1px dashed var(--line);border-radius:10px;padding:14px;margin-bottom:14px;background:#fbfdff}
 table{width:100%;border-collapse:collapse;table-layout:fixed}
 th,td{border-bottom:1px solid var(--line);padding:8px 8px;font-size:13.5px;text-align:left;vertical-align:middle}
 th{color:var(--muted);font-weight:600;font-size:12.5px}
@@ -58,7 +64,7 @@ td:nth-child(1){width:24%}td:nth-child(2){width:20%}td:nth-child(3){width:14%}td
 .bar .max-label{position:absolute;right:0;top:-2px;font-size:11px;color:var(--muted);line-height:1}
 .site-block{margin-bottom:18px;padding-bottom:14px;border-bottom:1px dashed var(--line)}
 .site-block:last-child{border-bottom:none;margin-bottom:0}
-.site-title{display:flex;align-items:center;gap:8px;margin-bottom:8px;font-weight:700;font-size:14.5px}
+.site-title{display:flex;align-items:center;gap:8px;margin-bottom:8px;font-weight:700;font-size:14.5px;flex-wrap:wrap}
 .site-title .count{color:var(--muted);font-weight:500;font-size:12.5px}
 .empty{color:var(--muted);text-align:center;padding:26px 0;font-size:14px}
 .login-wrap{max-width:420px;margin:9vh auto 0}
@@ -67,13 +73,10 @@ td:nth-child(1){width:24%}td:nth-child(2){width:20%}td:nth-child(3){width:14%}td
 .toast{position:fixed;left:50%;bottom:34px;transform:translateX(-50%);background:#232b3c;color:#fff;padding:10px 18px;border-radius:10px;font-size:13.5px;z-index:99;box-shadow:0 4px 16px rgba(0,0,0,.22);max-width:80%;text-align:center}
 .toast.error{background:#a53030}
 .note{font-size:12.5px;color:var(--muted);background:#f7f9fc;border:1px dashed var(--line);border-radius:8px;padding:10px 12px;margin-top:10px}
-.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
-@media (max-width:720px){.grid-2{grid-template-columns:1fr}}
 .toolbar{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;flex-wrap:wrap;gap:8px}
 .badge{font-size:12px;padding:3px 10px;border-radius:999px;background:#e8effd;color:var(--accent-dark);font-weight:600}
 .mode-desc{font-size:12.5px;color:var(--muted);margin-top:6px}
 svg{vertical-align:-2px}
-.heartbeat{color:var(--ok);font-weight:700}
 </style>
 </head>
 <body>
@@ -88,7 +91,7 @@ svg{vertical-align:-2px}
       <h3>请输入访问密码</h3>
       <input type="password" id="pwdInput" placeholder="访问密码" autocomplete="off">
       <button class="btn" id="loginBtn" style="width:100%;margin-top:12px">进入面板</button>
-      <div class="note">密码默认在 index.html 顶部 PASSWORD 常量中，部署前请修改。</div>
+      <div class="note">登录后 2 小时内无需重复登录。密码在 index.html 顶部 PASSWORD 常量中修改。</div>
     </div>
   </div>
 </div>
@@ -102,58 +105,62 @@ svg{vertical-align:-2px}
     </div>
   </div>
 
-  <!-- ===== 运行模式 ===== -->
+  <!-- ===== 监控站点（每站点独立调度） ===== -->
   <div class="card">
-    <h2>运行模式</h2>
-    <div class="grid-2">
-      <div>
-        <label>监控模式</label>
-        <select id="modeSel">
-          <option value="fixed">固定间隔：每隔 N 小时访问一次</option>
-          <option value="random">随机间隔：在 N1~N2 小时之间随机访问一次</option>
-        </select>
-        <p class="mode-desc" id="modeDesc"></p>
-      </div>
-      <div>
-        <label>每日运行窗口（可选，留空为全天运行）</label>
-        <div class="form-row">
-          <div><label style="margin-top:0">开始时间</label><input type="text" id="winStart" placeholder="如 09:00"></div>
-          <div><label style="margin-top:0">结束时间</label><input type="text" id="winEnd" placeholder="如 21:00"></div>
-        </div>
-        <div class="form-row" id="intervalFields">
-          <div id="fixedField"><label style="margin-top:0">固定间隔（小时）</label><input type="number" id="intervalHours" min="0.1" step="0.1"></div>
-          <div id="randomField"><label style="margin-top:0">随机间隔最小值（小时）</label><input type="number" id="randMin" min="0.1" step="0.1"></div>
-          <div id="randomField2"><label style="margin-top:0">随机间隔最大值（小时）</label><input type="number" id="randMax" min="0.1" step="0.1"></div>
-        </div>
-      </div>
-    </div>
-  </div>
+    <h2>监控站点 <span style="font-weight:400;color:var(--muted);font-size:13px">（每个站点可单独设定多久访问一次、访问多少次）</span></h2>
 
-  <!-- ===== 站点管理 ===== -->
-  <div class="card">
-    <h2>监控站点</h2>
+    <div class="form-panel" id="siteFormPanel">
+      <h3 id="formTitle">添加监控站点</h3>
+      <div class="form-row">
+        <div style="flex:1"><label style="margin-top:0">站点名称（可选）</label><input type="text" id="fName" placeholder="如 公司官网"></div>
+        <div style="flex:2"><label style="margin-top:0">网址 URL</label><input type="text" id="fUrl" placeholder="https://example.com"></div>
+      </div>
+      <div class="form-row">
+        <div><label>访问模式</label>
+          <select id="fMode">
+            <option value="fixed">固定间隔：每隔 N 小时访问一次</option>
+            <option value="random">随机间隔：在 N1~N2 小时之间随机访问一次</option>
+          </select>
+        </div>
+        <div id="fIntervalWrap"><label>固定间隔（小时）</label><input type="number" id="fInterval" min="0.1" step="0.1" value="4"></div>
+        <div id="fRandMinWrap" class="hidden"><label>随机间隔最小值（小时）</label><input type="number" id="fRandMin" min="0.1" step="0.1" value="1"></div>
+        <div id="fRandMaxWrap" class="hidden"><label>随机间隔最大值（小时）</label><input type="number" id="fRandMax" min="0.1" step="0.1" value="12"></div>
+        <div><label>访问次数（0 = 不限）</label><input type="number" id="fMaxRuns" min="0" step="1" value="0"></div>
+      </div>
+      <div class="form-row">
+        <div><label>每日运行窗口开始（可选，如 09:00）</label><input type="text" id="fWinStart" placeholder="留空=全天"></div>
+        <div><label>每日运行窗口结束（可选，如 21:00）</label><input type="text" id="fWinEnd" placeholder="留空=全天"></div>
+        <div style="flex:0 0 auto;display:flex;align-items:flex-end;gap:8px">
+          <button class="btn" id="formSubmitBtn" style="margin:0">添加站点</button>
+          <button class="btn secondary hidden" id="formCancelBtn" style="margin:0">取消编辑</button>
+        </div>
+      </div>
+      <p class="mode-desc" id="fModeDesc"></p>
+    </div>
+
     <div id="siteList"></div>
-    <div class="form-row" style="align-items:flex-end">
-      <div style="flex:1;min-width:180px"><label style="margin-top:0">站点名称（可选）</label><input type="text" id="newName" placeholder="如 公司官网"></div>
-      <div style="flex:2;min-width:240px"><label style="margin-top:0">网址 URL</label><input type="text" id="newUrl" placeholder="https://example.com"></div>
-      <div style="flex:0 0 auto"><button class="btn" id="addSiteBtn" style="margin:0">添加站点</button></div>
-    </div>
   </div>
 
-  <!-- ===== 保存配置 ===== -->
+  <!-- ===== 自动同步设置 ===== -->
   <div class="card">
-    <h2>保存配置</h2>
+    <h2>自动同步设置</h2>
     <div class="note">
-      方式一（推荐）：填写下方 GitHub 仓库信息与 Token，点击保存即可直接写入仓库 <code>sites.json</code>（Token 只保存在本机浏览器，不会上传）。
-      方式二：复制生成的 JSON，到仓库里手动替换 <code>sites.json</code> 并提交。
+      只需填写一次 GitHub 仓库与 Token（保存在本机浏览器）。之后你在页面上添加站点、修改配置等任何操作，
+      都会<span style="color:var(--ok);font-weight:600">自动同步</span>到仓库的 <code>sites.json</code>，
+      GitHub Actions 会按各站点自己的调度自动运行，无需手动保存。
     </div>
-    <div class="form-row" style="margin-top:12px">
-      <div style="flex:2"><label style="margin-top:0">GitHub 仓库（格式：用户名/仓库名）</label><input type="text" id="repoInput" placeholder="yourname/site-latency-monitor"></div>
-      <div style="flex:2"><label style="margin-top:0">GitHub Token（Fine-grained，需 Contents 读写权限）</label><input type="password" id="tokenInput" placeholder="ghp_... / github_pat_..."></div>
-      <div style="flex:0 0 auto"><button class="btn" id="saveBtn" style="margin:0">保存到仓库</button></div>
+    <div class="checkbox-row" style="margin-top:10px">
+      <input type="checkbox" id="autoSyncCheck" checked>
+      <label for="autoSyncCheck">开启自动同步（修改配置后自动写入 GitHub）</label>
+    </div>
+    <div class="form-row">
+      <div style="flex:2"><label style="margin-top:0">GitHub 仓库（格式：用户名/仓库名）</label><input type="text" id="repoInput" placeholder="Cogen0/site-latency-monitor"></div>
+      <div style="flex:2"><label style="margin-top:0">GitHub Token（Fine-grained，需 Contents 读写权限）</label><input type="password" id="tokenInput" placeholder="github_pat_..."></div>
+      <div style="flex:0 0 auto"><button class="btn" id="saveBtn" style="margin:0">保存并立即同步</button></div>
+      <div style="flex:0 0 auto"><button class="btn secondary" id="runNowBtn" style="margin:0">立即运行一轮</button></div>
     </div>
     <div class="form-row" style="margin-top:12px;align-items:flex-end">
-      <div style="flex:3"><label style="margin-top:0">生成的 sites.json（可直接复制）</label><textarea id="jsonOut" rows="9" readonly spellcheck="false"></textarea></div>
+      <div style="flex:3"><label style="margin-top:0">当前配置（也可直接复制）</label><textarea id="jsonOut" rows="8" readonly spellcheck="false"></textarea></div>
       <div style="flex:0 0 auto"><button class="btn secondary" id="copyBtn" style="margin:0">复制 JSON</button></div>
     </div>
     <div id="saveStatus" style="margin-top:10px;font-size:13px"></div>
@@ -167,21 +174,24 @@ svg{vertical-align:-2px}
 
   <div class="note">
     说明：本面板由 GitHub Pages 静态托管，延迟数据由 GitHub Actions 定时探测后写入 history.json。
-    登录密码为前端校验，用于防止随意浏览；部署后请修改 index.html 中的 PASSWORD。数据文件位于仓库根目录，可被有仓库权限的人直接读取。
+    每个站点独立调度、互不影响。登录密码为前端校验，用于防止随意浏览；数据文件位于仓库根目录，可被有仓库权限的人直接读取。
   </div>
 </div>
 
 <script>
 /* ============================================================
  * 站点延迟监控面板
- * 部署前请修改下面 PASSWORD 为自己的访问密码
+ * 部署前请把下面 PASSWORD 改成你自己的访问密码
+ * 登录后 2 小时内免重复登录（有效期存在浏览器本地）
  * ============================================================ */
 const PASSWORD = "aaa000eee";
+const LOGIN_TTL = 2 * 60 * 60 * 1000;   // 2 小时
 
 /* ---------- 状态 ---------- */
 let cfg = null;            // sites.json 配置对象
 let history = [];          // history.json 记录
 let loggedIn = false;
+let editingIndex = null;   // 正在编辑的站点下标，null 表示添加模式
 
 const $ = id => document.getElementById(id);
 
@@ -192,6 +202,9 @@ function toast(msg, isError){
   t.textContent = msg;
   document.body.appendChild(t);
   setTimeout(() => t.remove(), 3200);
+}
+function escapeHtml(s){
+  return String(s).replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 }
 function safeLatency(lat){
   return lat === null || lat === undefined ? "超时" : (Math.round(lat*100)/100) + " ms";
@@ -207,27 +220,41 @@ async function fetchJson(path){
   if (!resp.ok) throw new Error("HTTP " + resp.status);
   return resp.json();
 }
-function renderModeDesc(){
-  const m = $("modeSel").value;
-  const desc = m === "fixed"
-    ? "每隔指定小时数访问一次所有站点（由 Actions 每 10 分钟检查一次是否到期，误差约 10 分钟内）。"
-    : "每次探测完成后，在最小~最大小时数之间随机决定下一次探测时间，实现「多久之内随机访问一次」。";
-  $("modeDesc").textContent = desc;
+function scheduleSummary(s){
+  let txt = s.mode === "random"
+    ? "随机间隔 " + (s.random_min_hours ?? 1) + "~" + (s.random_max_hours ?? 12) + " 小时访问一次"
+    : "每 " + (s.interval_hours ?? 24) + " 小时访问一次";
+  const mr = parseInt(s.max_runs, 10) || 0;
+  txt += mr > 0 ? " · 共 " + mr + " 次" : " · 不限次数";
+  if (s.window && s.window.start && s.window.end) txt += " · 每日 " + s.window.start + "~" + s.window.end;
+  return txt;
+}
+function recordsCountOf(url){
+  return history.filter(r => r.url === url).length;
 }
 
-/* ---------- 登录 ---------- */
+/* ---------- 登录（2 小时有效期） ---------- */
+function enterPanel(){
+  loggedIn = true;
+  $("loginWrap").classList.add("hidden");
+  $("mainWrap").classList.remove("hidden");
+  loadAll();
+}
+function checkLogin(){
+  const exp = parseInt(localStorage.getItem("login_expire") || "0", 10);
+  if (exp > Date.now()) enterPanel();
+}
 function doLogin(){
   const v = $("pwdInput").value;
   if (v === PASSWORD){
-    loggedIn = true;
-    $("loginWrap").classList.add("hidden");
-    $("mainWrap").classList.remove("hidden");
-    loadAll();
+    localStorage.setItem("login_expire", String(Date.now() + LOGIN_TTL));
+    enterPanel();
   } else {
     toast("密码错误，请重试", true);
   }
 }
 function doLogout(){
+  localStorage.removeItem("login_expire");
   loggedIn = false;
   $("pwdInput").value = "";
   $("loginWrap").classList.remove("hidden");
@@ -240,42 +267,126 @@ async function loadAll(){
     cfg = await fetchJson("sites.json");
   } catch(e){
     toast("无法读取 sites.json，请确认已部署到 GitHub Pages", true);
-    cfg = {mode:"fixed", interval_hours:24, sites:[]};
+    cfg = {sites: []};
   }
   try {
     history = await fetchJson("history.json");
   } catch(e){
     history = [];
   }
-  // 读取本地保存的仓库信息与 Token
   $("repoInput").value = localStorage.getItem("gh_repo") || "";
   $("tokenInput").value = localStorage.getItem("gh_token") || "";
-  renderModeForm();
+  $("autoSyncCheck").checked = localStorage.getItem("gh_auto_sync") !== "0";
   renderSiteList();
   renderHistory();
   renderJsonOut();
+  if (!$("repoInput").value || !$("tokenInput").value){
+    $("saveStatus").innerHTML = '<span style="color:var(--warn)">尚未填写 GitHub 仓库与 Token，自动同步未生效。填写一次后，所有修改将自动同步到仓库。</span>';
+  } else {
+    $("saveStatus").innerHTML = '<span style="color:var(--muted)">自动同步已就绪（Token 已保存在本机浏览器）。</span>';
+  }
 }
 
-/* ---------- 模式表单 ---------- */
-function renderModeForm(){
-  $("modeSel").value = cfg.mode || "fixed";
-  $("intervalHours").value = cfg.interval_hours ?? 24;
-  $("randMin").value = cfg.random_min_hours ?? 1;
-  $("randMax").value = cfg.random_max_hours ?? 12;
-  $("winStart").value = (cfg.window && cfg.window.start) || "";
-  $("winEnd").value = (cfg.window && cfg.window.end) || "";
-  const isRandom = (cfg.mode || "fixed") === "random";
-  $("fixedField").classList.toggle("hidden", isRandom);
-  $("randomField").classList.toggle("hidden", !isRandom);
-  $("randomField2").classList.toggle("hidden", !isRandom);
-  renderModeDesc();
+/* ---------- 站点表单 ---------- */
+function renderModeFields(){
+  const isRandom = $("fMode").value === "random";
+  $("fIntervalWrap").classList.toggle("hidden", isRandom);
+  $("fRandMinWrap").classList.toggle("hidden", !isRandom);
+  $("fRandMaxWrap").classList.toggle("hidden", !isRandom);
+  $("fModeDesc").textContent = isRandom
+    ? "每次访问完成后，在最小~最大小时数之间随机决定下一次访问时间。"
+    : "每隔设定的小时数访问一次（由 Actions 每 10 分钟检查一次是否到期）。";
+}
+function resetForm(){
+  editingIndex = null;
+  $("formTitle").textContent = "添加监控站点";
+  $("formSubmitBtn").textContent = "添加站点";
+  $("formCancelBtn").classList.add("hidden");
+  $("fName").value = "";
+  $("fUrl").value = "";
+  $("fMode").value = "fixed";
+  $("fInterval").value = "4";
+  $("fRandMin").value = "1";
+  $("fRandMax").value = "12";
+  $("fMaxRuns").value = "0";
+  $("fWinStart").value = "";
+  $("fWinEnd").value = "";
+  renderModeFields();
+}
+function loadSiteToForm(idx){
+  const s = cfg.sites[idx];
+  editingIndex = idx;
+  $("formTitle").textContent = "编辑监控站点";
+  $("formSubmitBtn").textContent = "更新站点";
+  $("formCancelBtn").classList.remove("hidden");
+  $("fName").value = s.name || "";
+  $("fUrl").value = s.url || "";
+  $("fMode").value = s.mode || "fixed";
+  $("fInterval").value = s.interval_hours ?? 4;
+  $("fRandMin").value = s.random_min_hours ?? 1;
+  $("fRandMax").value = s.random_max_hours ?? 12;
+  $("fMaxRuns").value = s.max_runs ?? 0;
+  $("fWinStart").value = (s.window && s.window.start) || "";
+  $("fWinEnd").value = (s.window && s.window.end) || "";
+  renderModeFields();
+  $("siteFormPanel").scrollIntoView({behavior:"smooth", block:"start"});
+}
+function collectFormData(){
+  const url = $("fUrl").value.trim();
+  if (!url){
+    toast("请填写网址 URL", true);
+    return null;
+  }
+  if (!/^https?:\/\/.+/.test(url)){
+    toast("网址需以 http:// 或 https:// 开头", true);
+    return null;
+  }
+  const name = $("fName").value.trim() || url;
+  const winStart = $("fWinStart").value.trim();
+  const winEnd = $("fWinEnd").value.trim();
+  const data = {
+    name,
+    url,
+    enabled: true,
+    mode: $("fMode").value,
+    interval_hours: Math.max(0.1, parseFloat($("fInterval").value) || 4),
+    random_min_hours: Math.max(0.1, parseFloat($("fRandMin").value) || 1),
+    random_max_hours: Math.max(0.1, parseFloat($("fRandMax").value) || 12),
+    max_runs: Math.max(0, parseInt($("fMaxRuns").value, 10) || 0),
+    window: (winStart || winEnd) ? {start: winStart, end: winEnd} : null
+  };
+  return data;
+}
+function submitSite(){
+  const data = collectFormData();
+  if (!data) return;
+  if (editingIndex === null){
+    if (!cfg.sites) cfg.sites = [];
+    // 防止重复添加同一 URL
+    if (cfg.sites.some(s => s.url === data.url)){
+      toast("该网址已存在，可直接编辑", true);
+      return;
+    }
+    cfg.sites.push(data);
+    toast("已添加站点，自动同步中…");
+  } else {
+    const old = cfg.sites[editingIndex];
+    // 保留启用状态
+    data.enabled = old.enabled !== false;
+    cfg.sites[editingIndex] = data;
+    toast("已更新站点，自动同步中…");
+  }
+  resetForm();
+  renderSiteList();
+  renderJsonOut();
+  scheduleAutoSave();
 }
 
 /* ---------- 站点列表 ---------- */
 function renderSiteList(){
   const box = $("siteList");
   if (!cfg.sites || cfg.sites.length === 0){
-    box.innerHTML = '<div class="empty">暂无站点，请在下方添加要监控的网址</div>';
+    box.innerHTML = '<div class="empty">暂无站点，请在上方填写并添加第一个监控网址</div>';
     return;
   }
   box.innerHTML = "";
@@ -283,44 +394,32 @@ function renderSiteList(){
     const item = document.createElement("div");
     item.className = "site-item";
     item.innerHTML =
-      '<div class="name">' + escapeHtml(s.name || s.url) + '</div>' +
-      '<div class="url">' + escapeHtml(s.url) + '</div>' +
-      '<label class="switch" title="启用/停用"><input type="checkbox" ' + (s.enabled !== false ? "checked" : "") + '>' +
-      '<span class="track"></span></label>' +
-      '<button class="del" title="删除站点">删除</button>';
-    item.querySelector("input").addEventListener("change", e => {
+      '<div class="main">' +
+        '<div class="name">' + escapeHtml(s.name || s.url) + '</div>' +
+        '<div class="url">' + escapeHtml(s.url) + '</div>' +
+        '<span class="schedule">' + escapeHtml(scheduleSummary(s)) + '</span>' +
+        '<span class="schedule" style="background:#f0f4f9;color:var(--muted)">已记录 ' + recordsCountOf(s.url) + ' 条</span>' +
+      '</div>' +
+      '<div class="ops">' +
+        '<label class="switch" title="启用/停用"><input type="checkbox" ' + (s.enabled !== false ? "checked" : "") + '>' +
+        '<span class="track"></span></label>' +
+        '<button class="edit">编辑</button>' +
+        '<button class="del">删除</button>' +
+      '</div>';
+    item.querySelector(".switch input").addEventListener("change", e => {
       s.enabled = e.target.checked;
       renderJsonOut();
+      scheduleAutoSave();
     });
+    item.querySelector(".edit").addEventListener("click", () => loadSiteToForm(idx));
     item.querySelector(".del").addEventListener("click", () => {
       cfg.sites.splice(idx, 1);
       renderSiteList();
       renderJsonOut();
+      scheduleAutoSave("已删除站点，自动同步中…");
     });
     box.appendChild(item);
   });
-}
-function escapeHtml(s){
-  return String(s).replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
-}
-function addSite(){
-  const url = $("newUrl").value.trim();
-  if (!url){
-    toast("请填写网址 URL", true);
-    return;
-  }
-  if (!/^https?:\/\/.+/.test(url)){
-    toast("网址需以 http:// 或 https:// 开头", true);
-    return;
-  }
-  const name = $("newName").value.trim();
-  if (!cfg.sites) cfg.sites = [];
-  cfg.sites.push({name: name || url, url, enabled: true});
-  $("newName").value = "";
-  $("newUrl").value = "";
-  renderSiteList();
-  renderJsonOut();
-  toast("已添加站点，点击「保存到仓库」或复制 JSON 提交");
 }
 
 /* ---------- 配置 JSON 输出 ---------- */
@@ -333,24 +432,24 @@ function copyJson(){
   out.setSelectionRange(0, 99999);
   try {
     document.execCommand("copy");
-    toast("已复制，请到仓库替换 sites.json 并提交");
+    toast("已复制，可到仓库手动替换 sites.json");
   } catch(e){
     toast("复制失败，请手动选中复制", true);
   }
 }
 
-/* ---------- 保存到 GitHub ---------- */
-async function saveToGitHub(){
+/* ---------- 同步到 GitHub ---------- */
+async function syncNow(silent){
   const repo = $("repoInput").value.trim();
   const token = $("tokenInput").value.trim();
   const statusEl = $("saveStatus");
   if (!repo || !token){
-    statusEl.innerHTML = '<span style="color:var(--bad)">请先填写 GitHub 仓库与 Token</span>';
-    return;
+    if (!silent) statusEl.innerHTML = '<span style="color:var(--bad)">请先填写 GitHub 仓库与 Token 以启用自动同步</span>';
+    return false;
   }
   if (repo.split("/").length !== 2){
-    statusEl.innerHTML = '<span style="color:var(--bad)">仓库格式应为：用户名/仓库名</span>';
-    return;
+    if (!silent) statusEl.innerHTML = '<span style="color:var(--bad)">仓库格式应为：用户名/仓库名</span>';
+    return false;
   }
   localStorage.setItem("gh_repo", repo);
   localStorage.setItem("gh_token", token);
@@ -361,7 +460,7 @@ async function saveToGitHub(){
     "Accept": "application/vnd.github+json"
   };
   const content = btoa(unescape(encodeURIComponent(JSON.stringify(cfg, null, 2))));
-  statusEl.innerHTML = '<span style="color:var(--muted)">正在保存…</span>';
+  statusEl.innerHTML = '<span style="color:var(--muted)">同步中…</span>';
   try {
     let sha = null;
     const getResp = await fetch(api, {headers});
@@ -371,7 +470,7 @@ async function saveToGitHub(){
     } else if (getResp.status !== 404){
       const j = await getResp.json();
       statusEl.innerHTML = '<span style="color:var(--bad)">读取文件失败：' + escapeHtml(j.message || getResp.status) + '</span>';
-      return;
+      return false;
     }
     const putResp = await fetch(api, {
       method: "PUT",
@@ -379,11 +478,65 @@ async function saveToGitHub(){
       body: JSON.stringify({message: "update sites config from web panel", content, sha})
     });
     if (putResp.ok){
-      statusEl.innerHTML = '<span style="color:var(--ok)">已保存到仓库，GitHub Actions 将按新配置自动运行</span>';
-      toast("配置已保存到仓库");
+      statusEl.innerHTML = '<span style="color:var(--ok)">已自动同步到仓库（' + new Date().toLocaleTimeString() + '），GitHub Actions 将按各站点调度运行</span>';
+      return true;
     } else {
       const j = await putResp.json();
-      statusEl.innerHTML = '<span style="color:var(--bad)">保存失败：' + escapeHtml(j.message || putResp.status) + '（请检查 Token 是否拥有 Contents 读写权限）</span>';
+      statusEl.innerHTML = '<span style="color:var(--bad)">同步失败：' + escapeHtml(j.message || putResp.status) + '（请检查 Token 是否拥有 Contents 读写权限）</span>';
+      return false;
+    }
+  } catch(e){
+    statusEl.innerHTML = '<span style="color:var(--bad)">网络错误：' + escapeHtml(e.message) + '</span>';
+    return false;
+  }
+}
+
+let autoSyncTimer = null;
+function scheduleAutoSave(msg){
+  if (!$("autoSyncCheck").checked){
+    renderJsonOut();
+    return;
+  }
+  renderJsonOut();
+  if (autoSyncTimer) clearTimeout(autoSyncTimer);
+  autoSyncTimer = setTimeout(async () => {
+    const ok = await syncNow(true);
+    if (ok && msg) toast(msg);
+  }, 800);
+}
+
+async function saveNow(){
+  renderJsonOut();
+  const ok = await syncNow(false);
+  if (ok) toast("配置已同步到仓库");
+}
+
+/* ---------- 立即运行一轮（触发 GitHub Actions） ---------- */
+async function runNow(){
+  const repo = $("repoInput").value.trim();
+  const token = $("tokenInput").value.trim();
+  const statusEl = $("saveStatus");
+  if (!repo || !token){
+    statusEl.innerHTML = '<span style="color:var(--bad)">请先填写 GitHub 仓库与 Token</span>';
+    return;
+  }
+  statusEl.innerHTML = '<span style="color:var(--muted)">正在触发 GitHub Actions…</span>';
+  try {
+    const resp = await fetch("https://api.github.com/repos/" + repo + "/actions/workflows/monitor.yml/dispatches", {
+      method: "POST",
+      headers: {
+        "Authorization": "Bearer " + token,
+        "Accept": "application/vnd.github+json",
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({ref: "main"})
+    });
+    if (resp.ok || resp.status === 204){
+      statusEl.innerHTML = '<span style="color:var(--ok)">已触发 Actions 立即运行一轮，稍后刷新页面即可看到最新延迟</span>';
+      toast("已触发立即运行");
+    } else {
+      const j = await resp.json();
+      statusEl.innerHTML = '<span style="color:var(--bad)">触发失败：' + escapeHtml(j.message || resp.status) + '（Token 需同时勾选 Actions 读写权限）</span>';
     }
   } catch(e){
     statusEl.innerHTML = '<span style="color:var(--bad)">网络错误：' + escapeHtml(e.message) + '</span>';
@@ -394,7 +547,7 @@ async function saveToGitHub(){
 function renderHistory(){
   const box = $("historyArea");
   if (!history || history.length === 0){
-    box.innerHTML = '<div class="empty">暂无监控数据。配置保存后，等待 GitHub Actions 运行一次探测即可看到记录（可到 Actions 页手动 Run workflow 立即触发）。</div>';
+    box.innerHTML = '<div class="empty">暂无监控数据。添加站点后会自动同步，等待 GitHub Actions 按该站点调度运行即可看到记录（也可点「立即运行一轮」触发）。</div>';
     return;
   }
   const groups = {};
@@ -428,45 +581,19 @@ function renderHistory(){
 $("loginBtn").addEventListener("click", doLogin);
 $("pwdInput").addEventListener("keydown", e => { if (e.key === "Enter") doLogin(); });
 $("logoutBtn").addEventListener("click", doLogout);
-$("addSiteBtn").addEventListener("click", addSite);
-$("saveBtn").addEventListener("click", saveToGitHub);
+$("formSubmitBtn").addEventListener("click", submitSite);
+$("formCancelBtn").addEventListener("click", resetForm);
+$("fMode").addEventListener("change", renderModeFields);
+$("saveBtn").addEventListener("click", saveNow);
+$("runNowBtn").addEventListener("click", runNow);
 $("copyBtn").addEventListener("click", copyJson);
+$("autoSyncCheck").addEventListener("change", e => {
+  localStorage.setItem("gh_auto_sync", e.target.checked ? "1" : "0");
+  if (e.target.checked) scheduleAutoSave();
+});
 
-$("modeSel").addEventListener("change", e => {
-  cfg.mode = e.target.value;
-  const isRandom = cfg.mode === "random";
-  $("fixedField").classList.toggle("hidden", isRandom);
-  $("randomField").classList.toggle("hidden", !isRandom);
-  $("randomField2").classList.toggle("hidden", !isRandom);
-  renderModeDesc();
-  renderJsonOut();
-});
-$("intervalHours").addEventListener("input", e => {
-  cfg.interval_hours = Math.max(0.1, parseFloat(e.target.value) || 24);
-  renderJsonOut();
-});
-$("randMin").addEventListener("input", e => {
-  cfg.random_min_hours = Math.max(0.1, parseFloat(e.target.value) || 1);
-  renderJsonOut();
-});
-$("randMax").addEventListener("input", e => {
-  cfg.random_max_hours = Math.max(0.1, parseFloat(e.target.value) || 12);
-  renderJsonOut();
-});
-$("winStart").addEventListener("input", e => {
-  const v = e.target.value.trim();
-  cfg.window = (v || $("winEnd").value.trim())
-    ? {start: v, end: $("winEnd").value.trim()}
-    : null;
-  renderJsonOut();
-});
-$("winEnd").addEventListener("input", e => {
-  const v = e.target.value.trim();
-  cfg.window = (v || $("winStart").value.trim())
-    ? {start: $("winStart").value.trim(), end: v}
-    : null;
-  renderJsonOut();
-});
+/* 页面加载时：2 小时内免登录 */
+checkLogin();
 </script>
 </body>
 </html>
