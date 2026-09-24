@@ -1,18 +1,15 @@
 {
   "sites": [
     {
-      "name": "1",
+      "name": "2",
       "url": "https://2dh.cc.cd",
       "enabled": true,
       "mode": "random",
       "interval_hours": 4,
       "random_min_hours": 1,
       "random_max_hours": 12,
-      "max_runs": 3,
-      "window": {
-        "start": "19:30",
-        "end": "19:35"
-      }
+      "max_runs": 7,
+      "window": null
     }
   ]
 }
