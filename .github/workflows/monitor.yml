@@ -1,13 +1,36 @@
+# GitHub Actions 定时工作流：站点延迟监控
+#
+# 调度说明：
+# - 本工作流每 10 分钟被 GitHub 触发一次（cron 最小粒度限制，实际执行可能有几分钟偏差）
+# - 是否真正执行探测由 monitor.py 根据 sites.json 的配置判断
+#   （每个站点独立调度：fixed 模式按该站点 interval_hours 判断；
+#    random 模式按该站点 last_run.sites[url].next_ts 判断；max_runs 各自生效）
+# - 因此"间隔多久/多久之内随机访问一次"可在网页上随意修改，
+#   不需要再改动本文件
+#
+# 部署前必须开启仓库权限：
+#   仓库 Settings -> Actions -> General -> Workflow permissions
+#   -> 勾选 Read and write permissions
+#
+# 手动测试：仓库 Actions 页 -> Site Latency Monitor -> Run workflow
+#   （勾选 force_all 可强制访问所有站点，忽略调度与次数限制，
+#    与网页"立即运行一轮"按钮行为一致）
 
 name: Site Latency Monitor
 
 on:
   schedule:
-    - cron: '*/10 * * * *'
+    - cron: '*/10 * * * *'   # 每 10 分钟触发一次
   workflow_dispatch:
+    inputs:
+      force_all:
+        description: '强制访问所有站点（忽略调度与次数限制）'
+        required: false
+        default: false
+        type: boolean
 
 permissions:
-  contents: write
+  contents: write            # 允许把 history.json / last_run.json 提交回仓库
 
 concurrency:
   group: latency-monitor
@@ -21,7 +44,12 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Run latency monitor
-        run: python monitor.py
+        run: |
+          ARGS=""
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ] && [ "${{ github.event.inputs.force_all }}" = "true" ]; then
+            ARGS="--force"
+          fi
+          python monitor.py $ARGS
 
       - name: Commit and push results
         run: |
