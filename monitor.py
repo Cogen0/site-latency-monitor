@@ -13,6 +13,7 @@
 3. 对每个启用的站点发起 HTTP GET，记录延迟（毫秒）与状态码
 4. 将结果追加到 history.json，每个站点只保留最近 5 次
 5. 更新 last_run.json 供下次调度判断
+6. 可选 max_runs：达到最大运行次数后自动停止探测（0 或省略 = 不限次数）
 
 仅使用 Python 标准库（urllib），GitHub Actions 的 ubuntu-latest 环境开箱即用。
 """
@@ -131,6 +132,13 @@ def main():
     now = datetime.now()
     now_str = now.strftime("%Y-%m-%d %H:%M:%S")
 
+    # ---- 最大运行次数限制 ----
+    max_runs = int(config.get("max_runs", 0) or 0)
+    run_count = int(last_run.get("run_count", 0))
+    if max_runs > 0 and run_count >= max_runs:
+        print(f"[skip] 已达到最大运行次数 {max_runs} 次，停止探测（如需继续，请把配置中的 max_runs 改大或设为 0）")
+        return
+
     if not should_run(config, last_run, now):
         return
 
@@ -170,6 +178,7 @@ def main():
 
     # ---- 更新运行状态 ----
     last_run["last_actual_run_ts"] = now_str
+    last_run["run_count"] = run_count + 1
     if config.get("mode") == "random":
         min_h = float(config.get("random_min_hours", 1))
         max_h = float(config.get("random_max_hours", 12))

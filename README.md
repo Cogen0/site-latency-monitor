@@ -6,11 +6,14 @@
 
 - 密码登录后才可查看面板数据
 - 网页上直接添加 / 删除 / 启停监控站点
-- 两种调度模式（修改后保存即可，无需改代码）：
+- **自动同步**：填写一次 GitHub 仓库与 Token 后，网页上的所有修改（添加站点、调整间隔等）自动同步到仓库 `sites.json`，无需手动保存
+- 两种调度模式（修改后自动生效，无需改代码）：
   - **固定间隔**：每隔 N 小时访问一次所有站点
   - **随机间隔**：每次探测后，在 N1~N2 小时之间随机决定下一次访问时间（"多久之内随机访问一次"）
   - 可选的每日运行窗口（如只在 09:00~21:00 之间运行）
+  - 可选的最大运行次数 `max_runs`（达到后自动停止，0 = 不限）
 - 每个站点显示最近 5 次访问的延迟（毫秒）、HTTP 状态码与趋势条
+- 一键"立即运行一轮"：直接触发 GitHub Actions 立刻探测，无需等定时
 
 ## 文件说明
 
@@ -65,20 +68,19 @@ DNS 生效（几分钟~几小时）后，通过你的域名即可访问面板。
 仓库 `Actions` 页 → 左侧 `Site Latency Monitor` → **Run workflow** → 手动触发一次。
 观察运行日志，确认输出了 `[ok] ... -> xxx ms`。此时 `history.json` 会被更新并提交。
 
-### 7. 在网页上配置监控站点
+### 7. 在网页上配置监控站点（全自动）
 
 1. 浏览器打开你的域名，输入密码登录。
-2. 添加站点：填写名称与 URL（必须以 `http://` 或 `https://` 开头）。
-3. 选择运行模式并填写间隔 / 随机范围 / 可选每日窗口。
-4. 保存配置（二选一）：
-   - **网页直写（推荐）**：在"保存配置"卡片填写 GitHub 仓库（`用户名/仓库名`）与 Token，点击保存。
-     需要创建一个 **Fine-grained Personal Access Token**：GitHub `Settings` → `Developer settings`
-     → `Fine-grained tokens` → 仓库选择权仅本仓库 → `Contents: Read and write`。
-     Token 只保存在你自己的浏览器 localStorage 中，不会写入代码或仓库。
-   - **手动提交**：点击"复制 JSON"，到仓库里替换 `sites.json` 内容并提交。
+2. 在「自动同步设置」卡片填写 GitHub 仓库（`用户名/仓库名`）与 Token，点**保存并立即同步**。
+   - 创建 **Fine-grained Personal Access Token**：GitHub `Settings` → `Developer settings`
+     → `Fine-grained tokens` → 仓库权限仅本仓库 → 勾选 `Contents: Read and write`
+     （如想用「立即运行一轮」按钮，再勾选 `Actions: Read and write`）。
+   - Token 只保存在你自己的浏览器 localStorage 中，不会写入代码或仓库。
+3. 之后在页面上添加站点、修改间隔、切换启停……任何修改都会在约 1 秒内**自动同步**到仓库 `sites.json`，
+   状态栏会显示"已自动同步到仓库（时间）"。
+4. 想立刻验证：点**立即运行一轮**，GitHub Actions 马上执行探测，稍后刷新页面即可看到最近 5 次延迟。
 
-5. 之后每 10 分钟 GitHub Actions 会检查一次是否到期，到期则探测并把最近 5 次结果写入 `history.json`。
-   刷新页面即可看到最新延迟数据。
+> 若没有填写 Token，页面不会自动同步，但仍可通过「复制 JSON」手动到仓库替换 `sites.json`。
 
 ## 配置字段说明（sites.json）
 
@@ -88,6 +90,7 @@ DNS 生效（几分钟~几小时）后，通过你的域名即可访问面板。
   "interval_hours": 24,
   "random_min_hours": 1,
   "random_max_hours": 12,
+  "max_runs": 0,
   "window": { "start": "09:00", "end": "21:00" },
   "sites": [{ "name": "站点名", "url": "https://...", "enabled": true }]
 }
@@ -95,6 +98,7 @@ DNS 生效（几分钟~几小时）后，通过你的域名即可访问面板。
 
 - `mode: "fixed"`：使用 `interval_hours`，每隔该小时数探测一次。
 - `mode: "random"`：使用 `random_min_hours` / `random_max_hours`，每次探测后在此区间随机安排下次时间。
+- `max_runs`：最大运行次数，达到后自动停止探测（`0` 或省略 = 不限次数）。
 - `window`：可留空（全天运行）；也可限制每日运行时段。`end` 早于 `start` 表示跨午夜（如 22:00~06:00）。
 - `window` 只限制探测开始时间，不代表"随机到某时刻"；随机性由 `mode: "random"` 提供。
 
