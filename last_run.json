@@ -1,3 +1,10 @@
 {
-  "sites": {}
+  "sites": {
+    "https://www.baidu.com": {
+      "last_ts": "2026-09-24 11:28:40",
+      "run_count": 1
+    },
+    "https://2dh.cc.cd": {}
+  },
+  "last_check_ts": "2026-09-24 11:28:40"
 }
