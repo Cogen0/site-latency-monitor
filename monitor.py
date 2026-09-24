@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-站点延迟监控脚本（由 GitHub Actions 每 10 分钟调用一次）
+站点延迟监控脚本（由 GitHub Actions 每 30 分钟调用一次）
 
 核心设计：每个站点独立调度，互不影响。
 每个站点在 sites.json 里自带调度参数：
@@ -185,8 +185,9 @@ def main():
         save_json(HISTORY_FILE, new_history)
         print(f"[ok] 已写入 history.json（共 {len(new_history)} 条记录）")
 
+    # 只写回调度状态（不写 last_check_ts：避免每轮无变化也提交，
+    # 从而触发 Vercel 等托管平台无谓的重新部署）
     last_run["sites"] = states
-    last_run["last_check_ts"] = now_str
     save_json(LAST_RUN_FILE, last_run)
 
 

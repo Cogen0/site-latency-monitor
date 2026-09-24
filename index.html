@@ -144,7 +144,7 @@ svg{vertical-align:-2px}
   <div class="card">
     <h2>自动同步与手动运行</h2>
     <div class="note">
-      同步配置已<b>固化在源码</b>（<code>index.html</code> 顶部的 <code>GH_REPO</code> / <code>GH_TOKEN</code> 常量），
+      同步通过 <b>Vercel 服务端函数</b>自动完成（Token 仅存在于 Vercel 环境变量，源码与页面不含密钥），
       换任何浏览器 / 设备打开都一样，无需重复设置。页面上添加、修改站点后，会自动写入仓库 <code>sites.json</code>；
       GitHub Actions 每 30 分钟按各站点自己的调度运行。点「立即运行一轮」会<b>强制访问当前所有启用的站点</b>
       （忽略间隔、次数与窗口限制），用于随时查看全部站点的最新延迟。
@@ -166,7 +166,7 @@ svg{vertical-align:-2px}
   </div>
 
   <div class="note">
-    说明：本面板由 GitHub Pages 静态托管，延迟数据由 GitHub Actions 定时探测后写入 history.json。
+    说明：本面板由 Vercel 托管，延迟数据由 GitHub Actions 定时探测后写入 history.json。
     每个站点独立调度、互不影响。登录密码为前端校验，用于防止随意浏览；数据文件位于仓库根目录，可被有仓库权限的人直接读取。
   </div>
 </div>
@@ -180,14 +180,12 @@ const PASSWORD = "aaa000eee";
 const LOGIN_TTL = 2 * 60 * 60 * 1000;   // 2 小时
 
 /* ============================================================
- * GitHub 自动同步配置（固化在源码，无需在页面上重复设置）
- * 换任何浏览器 / 设备打开都使用同一份配置。
- * GH_TOKEN 建议使用 Fine-grained Token：
- *   仅授权本仓库 + Contents: Read and write（想用"立即运行一轮"再加 Actions: Read and write）
- * 注意：若仓库为 Public，Token 会被公开可见，请使用低权限 / 短有效期 Token，并注意轮换。
+ * 自动同步方式（安全说明）
+ * 本面板通过 Vercel 服务端函数（/api/save、/api/run）代理写入 GitHub 仓库：
+ *   - Token 只配置在 Vercel 的环境变量 GH_TOKEN 中（Vercel 项目设置里添加），
+ *   - 源码与前端页面均不含任何密钥，仓库 Public / Private 都不泄露 Token。
+ * 换任何浏览器 / 设备打开都使用同一份配置，无需重复设置。
  * ============================================================ */
-const GH_REPO  = "Cogen0/site-latency-monitor";  // ← 改成你的仓库：用户名/仓库名
-const GH_TOKEN = "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";                             // ← 填入你的 GitHub Token
 
 /* ---------- 状态 ---------- */
 let cfg = null;            // sites.json 配置对象
@@ -268,7 +266,7 @@ async function loadAll(){
   try {
     cfg = await fetchJson("sites.json");
   } catch(e){
-    toast("无法读取 sites.json，请确认已部署到 GitHub Pages", true);
+    toast("无法读取 sites.json，请确认已部署到 Vercel/GitHub", true);
     cfg = {sites: []};
   }
   try {
@@ -279,9 +277,7 @@ async function loadAll(){
   renderSiteList();
   renderHistory();
   renderJsonOut();
-  $("saveStatus").innerHTML = GH_TOKEN
-    ? '<span style="color:var(--ok)">自动同步已就绪：配置已固化在源码，任何浏览器打开都会自动同步到仓库。</span>'
-    : '<span style="color:var(--warn)">尚未配置 Token：请打开 index.html，把顶部 GH_TOKEN 常量填为你的 GitHub Token，页面即可自动同步。</span>';
+  $("saveStatus").innerHTML = '<span style="color:var(--ok)">自动同步已就绪（经 Vercel 服务端代理写入仓库），任何浏览器打开都会自动同步。</span>';
 }
 
 /* ---------- 站点表单 ---------- */
@@ -433,42 +429,22 @@ function copyJson(){
   }
 }
 
-/* ---------- 同步到 GitHub（配置固化，直接使用常量） ---------- */
+/* ---------- 同步到 GitHub（经 Vercel 服务端函数代理，前端无 Token） ---------- */
 async function syncNow(silent){
   const statusEl = $("saveStatus");
-  if (!GH_TOKEN){
-    if (!silent) statusEl.innerHTML = '<span style="color:var(--bad)">未配置 Token：请打开 index.html，把顶部 GH_TOKEN 常量填为你的 GitHub Token</span>';
-    return false;
-  }
-  const api = "https://api.github.com/repos/" + GH_REPO + "/contents/sites.json";
-  const headers = {
-    "Authorization": "Bearer " + GH_TOKEN,
-    "Accept": "application/vnd.github+json"
-  };
-  const content = btoa(unescape(encodeURIComponent(JSON.stringify(cfg, null, 2))));
   statusEl.innerHTML = '<span style="color:var(--muted)">同步中…</span>';
   try {
-    let sha = null;
-    const getResp = await fetch(api, {headers});
-    if (getResp.ok){
-      const j = await getResp.json();
-      sha = j.sha;
-    } else if (getResp.status !== 404){
-      const j = await getResp.json();
-      statusEl.innerHTML = '<span style="color:var(--bad)">读取文件失败：' + escapeHtml(j.message || getResp.status) + '</span>';
-      return false;
-    }
-    const putResp = await fetch(api, {
-      method: "PUT",
-      headers: Object.assign({}, headers, {"Content-Type": "application/json"}),
-      body: JSON.stringify({message: "update sites config from web panel", content, sha})
+    const resp = await fetch("/api/save", {
+      method: "POST",
+      headers: {"Content-Type": "application/json"},
+      body: JSON.stringify({sites: cfg.sites || []})
     });
-    if (putResp.ok){
+    const j = await resp.json();
+    if (resp.ok && j.ok){
       statusEl.innerHTML = '<span style="color:var(--ok)">已自动同步到仓库（' + new Date().toLocaleTimeString() + '），GitHub Actions 将按各站点调度运行</span>';
       return true;
     } else {
-      const j = await putResp.json();
-      statusEl.innerHTML = '<span style="color:var(--bad)">同步失败：' + escapeHtml(j.message || putResp.status) + '（请检查 Token 权限是否为 Contents 读写）</span>';
+      statusEl.innerHTML = '<span style="color:var(--bad)">同步失败：' + escapeHtml(j && j.error ? j.error : ("HTTP " + resp.status)) + '</span>';
       return false;
     }
   } catch(e){
@@ -487,30 +463,22 @@ function scheduleAutoSave(msg){
   }, 800);
 }
 
-/* ---------- 立即运行一轮（强制访问全部站点） ---------- */
+/* ---------- 立即运行一轮（经 Vercel 服务端函数代理，强制访问全部站点） ---------- */
 async function runNow(){
   const statusEl = $("saveStatus");
-  if (!GH_TOKEN){
-    statusEl.innerHTML = '<span style="color:var(--bad)">未配置 Token：请打开 index.html，把顶部 GH_TOKEN 常量填为你的 GitHub Token</span>';
-    return;
-  }
   statusEl.innerHTML = '<span style="color:var(--muted)">正在触发 Actions 强制访问全部站点…</span>';
   try {
-    const resp = await fetch("https://api.github.com/repos/" + GH_REPO + "/actions/workflows/monitor.yml/dispatches", {
+    const resp = await fetch("/api/run", {
       method: "POST",
-      headers: {
-        "Authorization": "Bearer " + GH_TOKEN,
-        "Accept": "application/vnd.github+json",
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify({ref: "main", inputs: {force_all: true}})
+      headers: {"Content-Type": "application/json"},
+      body: JSON.stringify({})
     });
-    if (resp.ok || resp.status === 204){
+    const j = await resp.json().catch(() => ({}));
+    if (resp.ok && j.ok){
       statusEl.innerHTML = '<span style="color:var(--ok)">已触发 Actions 强制访问全部站点，稍等 1~2 分钟刷新页面即可看到最新延迟</span>';
       toast("已触发强制访问全部站点");
     } else {
-      const j = await resp.json();
-      statusEl.innerHTML = '<span style="color:var(--bad)">触发失败：' + escapeHtml(j.message || resp.status) + '（Token 需同时勾选 Actions 读写权限）</span>';
+      statusEl.innerHTML = '<span style="color:var(--bad)">触发失败：' + escapeHtml(j.error || ("HTTP " + resp.status)) + '</span>';
     }
   } catch(e){
     statusEl.innerHTML = '<span style="color:var(--bad)">网络错误：' + escapeHtml(e.message) + '</span>';

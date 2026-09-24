@@ -1,14 +1,3 @@
 {
-  "sites": {
-    "https://www.baidu.com": {
-      "last_ts": "2026-09-24 11:28:40",
-      "run_count": 1
-    },
-    "https://2dh.cc.cd": {
-      "last_ts": "2026-09-24 11:39:05",
-      "run_count": 1,
-      "next_ts": "2026-09-24 21:41:35"
-    }
-  },
-  "last_check_ts": "2026-09-24 11:39:19"
+  "sites": {}
 }

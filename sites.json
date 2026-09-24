@@ -1,14 +1,14 @@
 {
   "sites": [
     {
-      "name": "2",
-      "url": "https://2dh.cc.cd",
+      "name": "示例站点",
+      "url": "https://www.baidu.com",
       "enabled": true,
-      "mode": "random",
-      "interval_hours": 4,
+      "mode": "fixed",
+      "interval_hours": 24,
       "random_min_hours": 1,
       "random_max_hours": 12,
-      "max_runs": 7,
+      "max_runs": 0,
       "window": null
     }
   ]
