@@ -146,7 +146,7 @@ svg{vertical-align:-2px}
     <div class="note">
       同步配置已<b>固化在源码</b>（<code>index.html</code> 顶部的 <code>GH_REPO</code> / <code>GH_TOKEN</code> 常量），
       换任何浏览器 / 设备打开都一样，无需重复设置。页面上添加、修改站点后，会自动写入仓库 <code>sites.json</code>；
-      GitHub Actions 每 10 分钟按各站点自己的调度运行。点「立即运行一轮」会<b>强制访问当前所有启用的站点</b>
+      GitHub Actions 每 30 分钟按各站点自己的调度运行。点「立即运行一轮」会<b>强制访问当前所有启用的站点</b>
       （忽略间隔、次数与窗口限制），用于随时查看全部站点的最新延迟。
     </div>
     <div class="form-row" style="margin-top:12px;align-items:flex-end">
@@ -187,7 +187,7 @@ const LOGIN_TTL = 2 * 60 * 60 * 1000;   // 2 小时
  * 注意：若仓库为 Public，Token 会被公开可见，请使用低权限 / 短有效期 Token，并注意轮换。
  * ============================================================ */
 const GH_REPO  = "Cogen0/site-latency-monitor";  // ← 改成你的仓库：用户名/仓库名
-const GH_TOKEN = "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";                             // ← 填入你的 GitHub Token
+const GH_TOKEN = "";                             // ← 填入你的 GitHub Token
 
 /* ---------- 状态 ---------- */
 let cfg = null;            // sites.json 配置对象
@@ -292,7 +292,7 @@ function renderModeFields(){
   $("fRandMaxWrap").classList.toggle("hidden", !isRandom);
   $("fModeDesc").textContent = isRandom
     ? "每次访问完成后，在最小~最大小时数之间随机决定下一次访问时间。"
-    : "每隔设定的小时数访问一次（由 Actions 每 10 分钟检查一次是否到期）。";
+    : "每隔设定的小时数访问一次（由 Actions 每 30 分钟检查一次是否到期）。";
 }
 function resetForm(){
   editingIndex = null;
