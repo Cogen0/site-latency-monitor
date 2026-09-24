@@ -1,3 +1,8 @@
 {
-  "sites": {}
+  "sites": {
+    "https://www.baidu.com": {
+      "last_ts": "2026-09-24 16:40:49",
+      "run_count": 1
+    }
+  }
 }
