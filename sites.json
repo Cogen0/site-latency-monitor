@@ -1,0 +1,14 @@
+{
+  "mode": "fixed",
+  "interval_hours": 24,
+  "random_min_hours": 1,
+  "random_max_hours": 12,
+  "window": null,
+  "sites": [
+    {
+      "name": "示例站点",
+      "url": "https://www.baidu.com",
+      "enabled": true
+    }
+  ]
+}
