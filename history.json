@@ -5,5 +5,12 @@
     "latency_ms": 824.4,
     "http_status": 200,
     "ts": "2026-09-24 11:28:40"
+  },
+  {
+    "url": "https://2dh.cc.cd",
+    "name": "2",
+    "latency_ms": null,
+    "http_status": -1,
+    "ts": "2026-09-24 11:39:05"
   }
 ]
