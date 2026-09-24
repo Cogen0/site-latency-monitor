@@ -1,1 +1,36 @@
 
+name: Site Latency Monitor
+
+on:
+  schedule:
+    - cron: '*/10 * * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: latency-monitor
+  cancel-in-progress: false
+
+jobs:
+  monitor:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Run latency monitor
+        run: python monitor.py
+
+      - name: Commit and push results
+        run: |
+          git config user.name "latency-monitor[bot]"
+          git config user.email "418982+github-actions[bot]@users.noreply.github.com"
+          git add history.json last_run.json
+          if git diff --cached --quiet; then
+            echo "No changes to commit."
+          else
+            git commit -m "chore: update latency history [skip ci]"
+            git push
+          fi
