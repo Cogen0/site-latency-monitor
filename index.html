@@ -24,8 +24,6 @@ h3{font-size:14px;margin-bottom:10px;color:var(--muted);font-weight:600}
 .btn:disabled{opacity:.55;cursor:not-allowed}
 .btn.secondary{background:#eef2f8;color:var(--text)}
 .btn.secondary:hover{background:#e2e8f2}
-.btn.danger{background:#fdecec;color:var(--bad)}
-.btn.danger:hover{background:#f8d8d8}
 input[type=text],input[type=password],input[type=number],select,textarea{
   width:100%;padding:9px 12px;border:1px solid var(--line);border-radius:8px;font-size:14px;
   background:#fff;color:var(--text);font-family:inherit}
@@ -76,6 +74,7 @@ td:nth-child(1){width:24%}td:nth-child(2){width:20%}td:nth-child(3){width:14%}td
 .toolbar{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;flex-wrap:wrap;gap:8px}
 .badge{font-size:12px;padding:3px 10px;border-radius:999px;background:#e8effd;color:var(--accent-dark);font-weight:600}
 .mode-desc{font-size:12.5px;color:var(--muted);margin-top:6px}
+code{background:#eef1f6;border-radius:4px;padding:0 5px;font-size:12.5px}
 svg{vertical-align:-2px}
 </style>
 </head>
@@ -141,27 +140,21 @@ svg{vertical-align:-2px}
     <div id="siteList"></div>
   </div>
 
-  <!-- ===== 自动同步设置 ===== -->
+  <!-- ===== 自动同步（配置已固化，无需在页面设置） ===== -->
   <div class="card">
-    <h2>自动同步设置</h2>
+    <h2>自动同步与手动运行</h2>
     <div class="note">
-      只需填写一次 GitHub 仓库与 Token（保存在本机浏览器）。之后你在页面上添加站点、修改配置等任何操作，
-      都会<span style="color:var(--ok);font-weight:600">自动同步</span>到仓库的 <code>sites.json</code>，
-      GitHub Actions 会按各站点自己的调度自动运行，无需手动保存。
-    </div>
-    <div class="checkbox-row" style="margin-top:10px">
-      <input type="checkbox" id="autoSyncCheck" checked>
-      <label for="autoSyncCheck">开启自动同步（修改配置后自动写入 GitHub）</label>
-    </div>
-    <div class="form-row">
-      <div style="flex:2"><label style="margin-top:0">GitHub 仓库（格式：用户名/仓库名）</label><input type="text" id="repoInput" placeholder="Cogen0/site-latency-monitor"></div>
-      <div style="flex:2"><label style="margin-top:0">GitHub Token（Fine-grained，需 Contents 读写权限）</label><input type="password" id="tokenInput" placeholder="github_pat_..."></div>
-      <div style="flex:0 0 auto"><button class="btn" id="saveBtn" style="margin:0">保存并立即同步</button></div>
-      <div style="flex:0 0 auto"><button class="btn secondary" id="runNowBtn" style="margin:0">立即运行一轮</button></div>
+      同步配置已<b>固化在源码</b>（<code>index.html</code> 顶部的 <code>GH_REPO</code> / <code>GH_TOKEN</code> 常量），
+      换任何浏览器 / 设备打开都一样，无需重复设置。页面上添加、修改站点后，会自动写入仓库 <code>sites.json</code>；
+      GitHub Actions 每 10 分钟按各站点自己的调度运行。点「立即运行一轮」会<b>强制访问当前所有启用的站点</b>
+      （忽略间隔、次数与窗口限制），用于随时查看全部站点的最新延迟。
     </div>
     <div class="form-row" style="margin-top:12px;align-items:flex-end">
-      <div style="flex:3"><label style="margin-top:0">当前配置（也可直接复制）</label><textarea id="jsonOut" rows="8" readonly spellcheck="false"></textarea></div>
-      <div style="flex:0 0 auto"><button class="btn secondary" id="copyBtn" style="margin:0">复制 JSON</button></div>
+      <div style="flex:3"><label style="margin-top:0">当前配置（可直接复制）</label><textarea id="jsonOut" rows="8" readonly spellcheck="false"></textarea></div>
+      <div style="flex:0 0 auto;display:flex;flex-direction:column;gap:8px">
+        <button class="btn" id="runNowBtn">立即运行一轮（访问全部站点）</button>
+        <button class="btn secondary" id="copyBtn">复制 JSON</button>
+      </div>
     </div>
     <div id="saveStatus" style="margin-top:10px;font-size:13px"></div>
   </div>
@@ -181,11 +174,20 @@ svg{vertical-align:-2px}
 <script>
 /* ============================================================
  * 站点延迟监控面板
- * 部署前请把下面 PASSWORD 改成你自己的访问密码
- * 登录后 2 小时内免重复登录（有效期存在浏览器本地）
+ * 部署前请修改下面 PASSWORD 为自己的访问密码
  * ============================================================ */
 const PASSWORD = "aaa000eee";
 const LOGIN_TTL = 2 * 60 * 60 * 1000;   // 2 小时
+
+/* ============================================================
+ * GitHub 自动同步配置（固化在源码，无需在页面上重复设置）
+ * 换任何浏览器 / 设备打开都使用同一份配置。
+ * GH_TOKEN 建议使用 Fine-grained Token：
+ *   仅授权本仓库 + Contents: Read and write（想用"立即运行一轮"再加 Actions: Read and write）
+ * 注意：若仓库为 Public，Token 会被公开可见，请使用低权限 / 短有效期 Token，并注意轮换。
+ * ============================================================ */
+const GH_REPO  = "Cogen0/site-latency-monitor";  // ← 改成你的仓库：用户名/仓库名
+const GH_TOKEN = "";                             // ← 填入你的 GitHub Token
 
 /* ---------- 状态 ---------- */
 let cfg = null;            // sites.json 配置对象
@@ -274,17 +276,12 @@ async function loadAll(){
   } catch(e){
     history = [];
   }
-  $("repoInput").value = localStorage.getItem("gh_repo") || "";
-  $("tokenInput").value = localStorage.getItem("gh_token") || "";
-  $("autoSyncCheck").checked = localStorage.getItem("gh_auto_sync") !== "0";
   renderSiteList();
   renderHistory();
   renderJsonOut();
-  if (!$("repoInput").value || !$("tokenInput").value){
-    $("saveStatus").innerHTML = '<span style="color:var(--warn)">尚未填写 GitHub 仓库与 Token，自动同步未生效。填写一次后，所有修改将自动同步到仓库。</span>';
-  } else {
-    $("saveStatus").innerHTML = '<span style="color:var(--muted)">自动同步已就绪（Token 已保存在本机浏览器）。</span>';
-  }
+  $("saveStatus").innerHTML = GH_TOKEN
+    ? '<span style="color:var(--ok)">自动同步已就绪：配置已固化在源码，任何浏览器打开都会自动同步到仓库。</span>'
+    : '<span style="color:var(--warn)">尚未配置 Token：请打开 index.html，把顶部 GH_TOKEN 常量填为你的 GitHub Token，页面即可自动同步。</span>';
 }
 
 /* ---------- 站点表单 ---------- */
@@ -362,7 +359,6 @@ function submitSite(){
   if (!data) return;
   if (editingIndex === null){
     if (!cfg.sites) cfg.sites = [];
-    // 防止重复添加同一 URL
     if (cfg.sites.some(s => s.url === data.url)){
       toast("该网址已存在，可直接编辑", true);
       return;
@@ -371,7 +367,6 @@ function submitSite(){
     toast("已添加站点，自动同步中…");
   } else {
     const old = cfg.sites[editingIndex];
-    // 保留启用状态
     data.enabled = old.enabled !== false;
     cfg.sites[editingIndex] = data;
     toast("已更新站点，自动同步中…");
@@ -438,25 +433,16 @@ function copyJson(){
   }
 }
 
-/* ---------- 同步到 GitHub ---------- */
+/* ---------- 同步到 GitHub（配置固化，直接使用常量） ---------- */
 async function syncNow(silent){
-  const repo = $("repoInput").value.trim();
-  const token = $("tokenInput").value.trim();
   const statusEl = $("saveStatus");
-  if (!repo || !token){
-    if (!silent) statusEl.innerHTML = '<span style="color:var(--bad)">请先填写 GitHub 仓库与 Token 以启用自动同步</span>';
+  if (!GH_TOKEN){
+    if (!silent) statusEl.innerHTML = '<span style="color:var(--bad)">未配置 Token：请打开 index.html，把顶部 GH_TOKEN 常量填为你的 GitHub Token</span>';
     return false;
   }
-  if (repo.split("/").length !== 2){
-    if (!silent) statusEl.innerHTML = '<span style="color:var(--bad)">仓库格式应为：用户名/仓库名</span>';
-    return false;
-  }
-  localStorage.setItem("gh_repo", repo);
-  localStorage.setItem("gh_token", token);
-
-  const api = "https://api.github.com/repos/" + repo + "/contents/sites.json";
+  const api = "https://api.github.com/repos/" + GH_REPO + "/contents/sites.json";
   const headers = {
-    "Authorization": "Bearer " + token,
+    "Authorization": "Bearer " + GH_TOKEN,
     "Accept": "application/vnd.github+json"
   };
   const content = btoa(unescape(encodeURIComponent(JSON.stringify(cfg, null, 2))));
@@ -482,7 +468,7 @@ async function syncNow(silent){
       return true;
     } else {
       const j = await putResp.json();
-      statusEl.innerHTML = '<span style="color:var(--bad)">同步失败：' + escapeHtml(j.message || putResp.status) + '（请检查 Token 是否拥有 Contents 读写权限）</span>';
+      statusEl.innerHTML = '<span style="color:var(--bad)">同步失败：' + escapeHtml(j.message || putResp.status) + '（请检查 Token 权限是否为 Contents 读写）</span>';
       return false;
     }
   } catch(e){
@@ -493,10 +479,6 @@ async function syncNow(silent){
 
 let autoSyncTimer = null;
 function scheduleAutoSave(msg){
-  if (!$("autoSyncCheck").checked){
-    renderJsonOut();
-    return;
-  }
   renderJsonOut();
   if (autoSyncTimer) clearTimeout(autoSyncTimer);
   autoSyncTimer = setTimeout(async () => {
@@ -505,35 +487,27 @@ function scheduleAutoSave(msg){
   }, 800);
 }
 
-async function saveNow(){
-  renderJsonOut();
-  const ok = await syncNow(false);
-  if (ok) toast("配置已同步到仓库");
-}
-
-/* ---------- 立即运行一轮（触发 GitHub Actions） ---------- */
+/* ---------- 立即运行一轮（强制访问全部站点） ---------- */
 async function runNow(){
-  const repo = $("repoInput").value.trim();
-  const token = $("tokenInput").value.trim();
   const statusEl = $("saveStatus");
-  if (!repo || !token){
-    statusEl.innerHTML = '<span style="color:var(--bad)">请先填写 GitHub 仓库与 Token</span>';
+  if (!GH_TOKEN){
+    statusEl.innerHTML = '<span style="color:var(--bad)">未配置 Token：请打开 index.html，把顶部 GH_TOKEN 常量填为你的 GitHub Token</span>';
     return;
   }
-  statusEl.innerHTML = '<span style="color:var(--muted)">正在触发 GitHub Actions…</span>';
+  statusEl.innerHTML = '<span style="color:var(--muted)">正在触发 Actions 强制访问全部站点…</span>';
   try {
-    const resp = await fetch("https://api.github.com/repos/" + repo + "/actions/workflows/monitor.yml/dispatches", {
+    const resp = await fetch("https://api.github.com/repos/" + GH_REPO + "/actions/workflows/monitor.yml/dispatches", {
       method: "POST",
       headers: {
-        "Authorization": "Bearer " + token,
+        "Authorization": "Bearer " + GH_TOKEN,
         "Accept": "application/vnd.github+json",
         "Content-Type": "application/json"
       },
-      body: JSON.stringify({ref: "main"})
+      body: JSON.stringify({ref: "main", inputs: {force_all: true}})
     });
     if (resp.ok || resp.status === 204){
-      statusEl.innerHTML = '<span style="color:var(--ok)">已触发 Actions 立即运行一轮，稍后刷新页面即可看到最新延迟</span>';
-      toast("已触发立即运行");
+      statusEl.innerHTML = '<span style="color:var(--ok)">已触发 Actions 强制访问全部站点，稍等 1~2 分钟刷新页面即可看到最新延迟</span>';
+      toast("已触发强制访问全部站点");
     } else {
       const j = await resp.json();
       statusEl.innerHTML = '<span style="color:var(--bad)">触发失败：' + escapeHtml(j.message || resp.status) + '（Token 需同时勾选 Actions 读写权限）</span>';
@@ -547,7 +521,7 @@ async function runNow(){
 function renderHistory(){
   const box = $("historyArea");
   if (!history || history.length === 0){
-    box.innerHTML = '<div class="empty">暂无监控数据。添加站点后会自动同步，等待 GitHub Actions 按该站点调度运行即可看到记录（也可点「立即运行一轮」触发）。</div>';
+    box.innerHTML = '<div class="empty">暂无监控数据。添加站点后会自动同步，等待 GitHub Actions 按该站点调度运行即可看到记录（也可点「立即运行一轮」强制访问全部站点）。</div>';
     return;
   }
   const groups = {};
@@ -584,13 +558,8 @@ $("logoutBtn").addEventListener("click", doLogout);
 $("formSubmitBtn").addEventListener("click", submitSite);
 $("formCancelBtn").addEventListener("click", resetForm);
 $("fMode").addEventListener("change", renderModeFields);
-$("saveBtn").addEventListener("click", saveNow);
 $("runNowBtn").addEventListener("click", runNow);
 $("copyBtn").addEventListener("click", copyJson);
-$("autoSyncCheck").addEventListener("change", e => {
-  localStorage.setItem("gh_auto_sync", e.target.checked ? "1" : "0");
-  if (e.target.checked) scheduleAutoSave();
-});
 
 /* 页面加载时：2 小时内免登录 */
 checkLogin();

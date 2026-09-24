@@ -13,8 +13,12 @@
 每轮只访问"当前已到期"的站点，未到期的站点不访问。
 结果写入 history.json（每站点保留最近 5 次）；调度状态写入 last_run.json。
 
-仅使用 Python 标准库（urllib），GitHub Actions 的 ubuntu-latest 环境开箱即用。
+支持 --force 参数：强制访问所有启用的站点（忽略调度、每日窗口与访问次数限制），
+供网页"立即运行一轮"按钮使用。
+
+仅使用 Python 标准库（urllib + argparse），GitHub Actions 的 ubuntu-latest 环境开箱即用。
 """
+import argparse
 import json
 import random
 import time
@@ -112,6 +116,12 @@ def site_due(site, state, now):
 
 
 def main():
+    parser = argparse.ArgumentParser(description="站点延迟监控脚本")
+    parser.add_argument("--force", action="store_true",
+                        help="强制访问所有启用的站点，忽略调度、每日窗口与访问次数限制")
+    args = parser.parse_args()
+    force = args.force
+
     config = load_json(CONFIG_FILE, {})
     sites = [s for s in config.get("sites", []) if s.get("enabled", True)]
     if not sites:
@@ -130,14 +140,16 @@ def main():
             continue
         state = states.setdefault(url, {})
 
-        due, reason = site_due(site, state, now)
-        if not due:
-            print(f"[skip] {url}：{reason}")
-            continue
-
-        if not in_window(site.get("window"), now):
-            print(f"[skip] {url}：当前 {now.strftime('%H:%M')} 不在该站点运行窗口内")
-            continue
+        if force:
+            print(f"[force] {url}：强制访问（忽略调度、窗口与次数限制）")
+        else:
+            due, reason = site_due(site, state, now)
+            if not due:
+                print(f"[skip] {url}：{reason}")
+                continue
+            if not in_window(site.get("window"), now):
+                print(f"[skip] {url}：当前 {now.strftime('%H:%M')} 不在该站点运行窗口内")
+                continue
 
         latency_ms, status = fetch_latency(url)
         results.append({

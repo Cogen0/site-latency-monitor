@@ -12,8 +12,9 @@
   - 访问次数 `max_runs`：最多访问多少次（0 = 不限），达到后该站点自动停止
   - 可选每日运行窗口（如只在 09:00~21:00 之间访问）
 - 网页上添加 / 编辑 / 删除 / 启停监控站点
-- **自动同步**：填写一次 GitHub 仓库与 Token 后，网页上的所有修改自动同步到仓库 `sites.json`，无需手动保存
-- 一键"立即运行一轮"：直接触发 GitHub Actions 立刻检查并访问所有到期站点
+- **自动同步（配置固化）**：同步配置直接固化在 `index.html` 顶部的 `GH_REPO` / `GH_TOKEN` 常量中，
+  换任何浏览器 / 设备打开都一样，无需在页面上重复设置；网页上的所有修改自动同步到仓库 `sites.json`
+- 一键"立即运行一轮"：触发 GitHub Actions **强制访问当前所有启用的站点**（忽略间隔、次数与窗口限制）
 - 每个站点显示最近 5 次访问的延迟（毫秒）、HTTP 状态码与趋势条
 
 ## 文件说明
@@ -79,16 +80,18 @@ DNS 生效（几分钟~几小时）后通过域名访问面板。GitHub 的 DNS 
 
 ### 7. 在网页上配置监控站点
 
-1. 打开你的域名，输入密码登录（2 小时内免重复登录）。
-2. 在「自动同步设置」卡片填写 GitHub 仓库（`Cogen0/site-latency-monitor`）与 Token，点**保存并立即同步**（只需一次）。
+1. **把 GitHub Token 填入源码（只需一次）**：用记事本打开 `index.html`，把顶部
+   `const GH_TOKEN = "";` 改为你的 Token，保存并重新上传 `index.html`。
    - 创建 **Fine-grained Personal Access Token**：GitHub `Settings` → `Developer settings` →
      `Personal access tokens` → `Fine-grained tokens` → 仓库权限仅本仓库 →
      勾选 `Contents: Read and write`（想用「立即运行一轮」按钮再加 `Actions: Read and write`）。
-   - Token 只保存在浏览器 localStorage，不会写入代码或仓库。
+   - 配置固化在源码后，换任何浏览器 / 设备打开页面都直接可用，无需重复设置。
+2. 打开你的域名，输入密码登录（2 小时内免重复登录）。
 3. 添加站点：填写名称、网址，选择访问模式、间隔、**访问次数**（0=不限）、可选每日窗口，点**添加站点**。
    每个站点独立调度，互不影响。
 4. 所有修改约 1 秒后自动同步到仓库 `sites.json`，Actions 每 10 分钟检查一次，按各站点自己的时间表访问。
-5. 想立刻验证：点**立即运行一轮**。
+5. 想立刻验证：点**立即运行一轮**——会强制访问当前所有启用的站点（忽略调度与次数限制），
+   日志输出 `[force] ...`，约 1~2 分钟后刷新页面即可看到最新延迟。
 
 ## 配置字段说明（sites.json）
 
@@ -123,6 +126,9 @@ DNS 生效（几分钟~几小时）后通过域名访问面板。GitHub 的 DNS 
   固定间隔的实际执行时间误差约 10 分钟以内。
 - **登录密码为前端校验**：登录仅防止随意浏览，懂技术的人仍可通过查看仓库源码或直接访问数据文件读取内容。
   如需严格鉴权，需要后端服务。
+- **Token 固化在源码（重要）**：`GH_TOKEN` 写进了 `index.html`，若仓库是 **Public**，Token 会对所有人可见，
+  请使用**仅授权本仓库 + 低权限 + 短有效期**的 Token，泄露后及时到 GitHub 撤销重建。
+  若担心暴露，可把仓库设为 **Private**，或把 `GH_REPO` / `GH_TOKEN` 从源码中移除、改用页面填写方式。
 - **`history.json` / `last_run.json` 由 Actions 自动管理**，每次更新会产生一次 commit，属正常现象。
 
 ## 常见问题
@@ -132,5 +138,5 @@ DNS 生效（几分钟~几小时）后通过域名访问面板。GitHub 的 DNS 
   `monitor.yml` 内容粘贴进去提交。
 - **页面空白 / 登录后提示无法读取 sites.json**：确认已部署到 Pages 且 `index.html`、`sites.json`、`history.json` 都在仓库根目录。
 - **Actions 不更新数据**：检查 `Workflow permissions` 是否已设为 Read and write；检查 Actions 运行日志。
-- **保存到仓库失败**：检查 Token 权限（Contents: Read and write）与仓库名格式（`用户名/仓库名`）。
+- **保存到仓库失败 / 页面提示未配置 Token**：打开 `index.html` 顶部，把 `GH_TOKEN` 常量填为你的 Token（需 Contents 读写权限），保存后重新上传；或检查 Token 是否过期。
 - **域名访问 404**：检查 DNS 是否生效、`CNAME` 文件内容是否为你的域名、Pages 的 Custom domain 是否填写并保存。
