@@ -32,6 +32,17 @@
       "random_max_hours": 12,
       "max_runs": 10,
       "window": null
+    },
+    {
+      "name": "蓝莓",
+      "url": "http://wdzzzyx.tttttttttt.top",
+      "enabled": true,
+      "mode": "fixed",
+      "interval_hours": 4,
+      "random_min_hours": 1,
+      "random_max_hours": 12,
+      "max_runs": 5,
+      "window": null
     }
   ]
 }
