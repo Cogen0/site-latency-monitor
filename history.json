@@ -14,6 +14,13 @@
     "ts": "2026-09-25 02:34:16"
   },
   {
+    "url": "https://www.baidu.com",
+    "name": "示例站点",
+    "latency_ms": 2850.61,
+    "http_status": 200,
+    "ts": "2026-09-25 02:51:26"
+  },
+  {
     "url": "http://1dh.l.cd/",
     "name": "中转站",
     "latency_ms": 761.84,
@@ -42,10 +49,24 @@
     "ts": "2026-09-25 02:46:20"
   },
   {
+    "url": "http://1dh.l.cd/",
+    "name": "文件中转站",
+    "latency_ms": 1247.6,
+    "http_status": 200,
+    "ts": "2026-09-25 02:51:26"
+  },
+  {
     "url": "http://dkjdkj.tttttttttt.top/",
     "name": "云南高校论坛",
     "latency_ms": 417.82,
     "http_status": 200,
     "ts": "2026-09-25 02:46:20"
+  },
+  {
+    "url": "http://dkjdkj.tttttttttt.top/",
+    "name": "云南高校论坛",
+    "latency_ms": 732.7,
+    "http_status": 200,
+    "ts": "2026-09-25 02:51:26"
   }
 ]
