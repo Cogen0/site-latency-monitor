@@ -21,11 +21,11 @@
     "ts": "2026-09-25 02:51:26"
   },
   {
-    "url": "http://1dh.l.cd/",
-    "name": "中转站",
-    "latency_ms": 761.84,
+    "url": "https://www.baidu.com",
+    "name": "示例站点",
+    "latency_ms": 2171.94,
     "http_status": 200,
-    "ts": "2026-09-25 01:25:24"
+    "ts": "2026-09-25 03:00:32"
   },
   {
     "url": "http://1dh.l.cd/",
@@ -56,6 +56,13 @@
     "ts": "2026-09-25 02:51:26"
   },
   {
+    "url": "http://1dh.l.cd/",
+    "name": "文件中转站",
+    "latency_ms": 830.01,
+    "http_status": 200,
+    "ts": "2026-09-25 03:00:32"
+  },
+  {
     "url": "http://dkjdkj.tttttttttt.top/",
     "name": "云南高校论坛",
     "latency_ms": 417.82,
@@ -68,5 +75,19 @@
     "latency_ms": 732.7,
     "http_status": 200,
     "ts": "2026-09-25 02:51:26"
+  },
+  {
+    "url": "http://dkjdkj.tttttttttt.top/",
+    "name": "云南高校论坛",
+    "latency_ms": 301.31,
+    "http_status": 200,
+    "ts": "2026-09-25 03:00:32"
+  },
+  {
+    "url": "http://wdzzzyx.tttttttttt.top",
+    "name": "蓝莓",
+    "latency_ms": 293.24,
+    "http_status": 200,
+    "ts": "2026-09-25 03:00:32"
   }
 ]
