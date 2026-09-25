@@ -59,6 +59,8 @@ jobs:
           if git diff --cached --quiet; then
             echo "No changes to commit."
           else
-            git commit -m "chore: update latency history [skip ci]"
+            # 注意：commit 信息不要带 [skip ci] —— Vercel 会跳过带 [skip ci] 的提交，
+            # 导致页面数据不随 Actions 更新
+            git commit -m "chore: update latency history"
             git push
           fi
