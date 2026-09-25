@@ -7,6 +7,13 @@
     "ts": "2026-09-24 16:40:49"
   },
   {
+    "url": "https://www.baidu.com",
+    "name": "示例站点",
+    "latency_ms": 1456.16,
+    "http_status": 200,
+    "ts": "2026-09-25 02:34:16"
+  },
+  {
     "url": "http://1dh.l.cd/",
     "name": "中转站",
     "latency_ms": 761.84,
@@ -19,5 +26,12 @@
     "latency_ms": 993.22,
     "http_status": 200,
     "ts": "2026-09-25 02:33:19"
+  },
+  {
+    "url": "http://1dh.l.cd/",
+    "name": "文件中转站",
+    "latency_ms": 1169.35,
+    "http_status": 200,
+    "ts": "2026-09-25 02:34:16"
   }
 ]

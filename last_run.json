@@ -1,12 +1,12 @@
 {
   "sites": {
     "https://www.baidu.com": {
-      "last_ts": "2026-09-24 16:40:49",
-      "run_count": 1
+      "last_ts": "2026-09-25 02:34:16",
+      "run_count": 2
     },
     "http://1dh.l.cd/": {
-      "last_ts": "2026-09-25 02:33:19",
-      "run_count": 2
+      "last_ts": "2026-09-25 02:34:16",
+      "run_count": 3
     }
   }
 }
