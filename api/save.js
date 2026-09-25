@@ -55,7 +55,8 @@ export default async function handler(req, res) {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        message: "update sites from panel [skip ci]",
+        // 注意：不要带 [skip ci]，否则 Vercel 不会因本次提交而重新部署
+        message: "update sites from panel",
         content,
         sha: sha || undefined,
         branch: BRANCH,
