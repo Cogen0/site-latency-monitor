@@ -12,5 +12,12 @@
     "latency_ms": 761.84,
     "http_status": 200,
     "ts": "2026-09-25 01:25:24"
+  },
+  {
+    "url": "http://1dh.l.cd/",
+    "name": "中转站",
+    "latency_ms": 993.22,
+    "http_status": 200,
+    "ts": "2026-09-25 02:33:19"
   }
 ]
