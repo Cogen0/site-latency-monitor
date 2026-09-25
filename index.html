@@ -257,17 +257,17 @@ function doLogout(){
   $("mainWrap").classList.add("hidden");
 }
 
-/* ---------- 数据加载 ---------- */
+/* ---------- 数据加载（经 /api/load 实时读 GitHub 仓库，不依赖 Vercel 部署快照） ---------- */
 async function loadAll(){
   try {
-    cfg = await fetchJson("sites.json");
+    const resp = await fetch("/api/load", {method: "GET"});
+    if (!resp.ok) throw new Error("HTTP " + resp.status);
+    const data = await resp.json();
+    cfg = data["sites.json"] || {sites: []};
+    history = data["history.json"] || [];
   } catch(e){
-    toast("无法读取 sites.json，请确认已部署到 Vercel/GitHub", true);
+    toast("无法加载数据：请确认已部署到 Vercel/GitHub，且 Vercel 环境变量 GH_TOKEN 已配置", true);
     cfg = {sites: []};
-  }
-  try {
-    history = await fetchJson("history.json");
-  } catch(e){
     history = [];
   }
   renderSiteList();
