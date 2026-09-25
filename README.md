@@ -15,7 +15,7 @@
   - 可选每日运行窗口（如只在 09:00~21:00 之间访问）
 - 网页上添加 / 编辑 / 删除 / 启停监控站点
 - **自动同步（无需任何客户端设置）**：换任何浏览器 / 设备打开都一样；网页上的所有修改自动写入仓库 `sites.json`
-- 一键"立即运行一轮"：触发 GitHub Actions **强制访问当前所有启用的站点**（忽略间隔、次数与窗口限制）
+- 一键"**立即同步并运行一轮**"：先自动把当前配置保存到仓库，再触发 GitHub Actions **强制访问当前所有启用的站点**（忽略间隔、次数与窗口限制），一步完成
 - 每个站点显示最近 5 次访问的延迟（毫秒）、HTTP 状态码与趋势条
 
 ## 架构（安全设计）
@@ -164,6 +164,8 @@ Token 只存在于：Vercel 项目设置 → Environment Variables → GH_TOKEN�
 - **Token 安全**：`GH_TOKEN` 只存在于 Vercel 环境变量，任何仓库文件、页面源码都不含 Token。
   Token 到期（30 天）后只需回 Vercel 环境变量更新新 Token 并重新部署，网页无需改动。
 - **`history.json` / `last_run.json` 由 Actions 自动管理**，每次更新产生一次 commit，属正常现象。
+- **不要在任何 commit 信息中使用 `[skip ci]`**：Vercel 遵循该约定，带 `[skip ci]` 的提交不会触发重新部署，
+  页面将停留在旧快照、看不到最新数据（本项目的 monitor.yml / api/save.js 已正确去掉）。
 
 ## 常见问题
 
@@ -178,3 +180,5 @@ Token 只存在于：Vercel 项目设置 → Environment Variables → GH_TOKEN�
 - **域名打不开**：确认 DNS 记录已从 GitHub Pages 改为 Vercel（A → 76.76.21.21），等待生效；
   可先用 Vercel 分配的 `xxx.vercel.app` 地址确认站点本身正常。
 - **网页修改配置没同步**：确认页面顶部状态显示"已自动同步到仓库"；若失败，按上面日志排查。
+- **页面数据不更新（站点已访问但页面无历史）**：到 Vercel 项目 Deployments 查看最新提交是否部署成功；
+  若一直停在旧部署，检查仓库里 monitor.yml / api/save.js 的 commit 信息是否误带了 `[skip ci]`（会阻止 Vercel 部署）。

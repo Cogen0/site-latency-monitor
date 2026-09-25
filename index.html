@@ -150,11 +150,7 @@ svg{vertical-align:-2px}
       （忽略间隔、次数与窗口限制），用于随时查看全部站点的最新延迟。
     </div>
     <div class="form-row" style="margin-top:12px;align-items:flex-end">
-      <div style="flex:3"><label style="margin-top:0">当前配置（可直接复制）</label><textarea id="jsonOut" rows="8" readonly spellcheck="false"></textarea></div>
-      <div style="flex:0 0 auto;display:flex;flex-direction:column;gap:8px">
-        <button class="btn" id="runNowBtn">立即运行一轮（访问全部站点）</button>
-        <button class="btn secondary" id="copyBtn">复制 JSON</button>
-      </div>
+      <div style="flex:1"><button class="btn" id="runNowBtn">立即同步并运行一轮（访问全部站点）</button></div>
     </div>
     <div id="saveStatus" style="margin-top:10px;font-size:13px"></div>
   </div>
@@ -276,7 +272,6 @@ async function loadAll(){
   }
   renderSiteList();
   renderHistory();
-  renderJsonOut();
   $("saveStatus").innerHTML = '<span style="color:var(--ok)">自动同步已就绪（经 Vercel 服务端代理写入仓库），任何浏览器打开都会自动同步。</span>';
 }
 
@@ -369,7 +364,6 @@ function submitSite(){
   }
   resetForm();
   renderSiteList();
-  renderJsonOut();
   scheduleAutoSave();
 }
 
@@ -399,35 +393,19 @@ function renderSiteList(){
       '</div>';
     item.querySelector(".switch input").addEventListener("change", e => {
       s.enabled = e.target.checked;
-      renderJsonOut();
       scheduleAutoSave();
     });
     item.querySelector(".edit").addEventListener("click", () => loadSiteToForm(idx));
     item.querySelector(".del").addEventListener("click", () => {
       cfg.sites.splice(idx, 1);
       renderSiteList();
-      renderJsonOut();
       scheduleAutoSave("已删除站点，自动同步中…");
     });
     box.appendChild(item);
   });
 }
 
-/* ---------- 配置 JSON 输出 ---------- */
-function renderJsonOut(){
-  $("jsonOut").value = JSON.stringify(cfg, null, 2);
-}
-function copyJson(){
-  const out = $("jsonOut");
-  out.select();
-  out.setSelectionRange(0, 99999);
-  try {
-    document.execCommand("copy");
-    toast("已复制，可到仓库手动替换 sites.json");
-  } catch(e){
-    toast("复制失败，请手动选中复制", true);
-  }
-}
+/* （已移除：不再显示配置 JSON 窗口） */
 
 /* ---------- 同步到 GitHub（经 Vercel 服务端函数代理，前端无 Token） ---------- */
 async function syncNow(silent){
@@ -455,7 +433,6 @@ async function syncNow(silent){
 
 let autoSyncTimer = null;
 function scheduleAutoSave(msg){
-  renderJsonOut();
   if (autoSyncTimer) clearTimeout(autoSyncTimer);
   autoSyncTimer = setTimeout(async () => {
     const ok = await syncNow(true);
@@ -463,9 +440,14 @@ function scheduleAutoSave(msg){
   }, 800);
 }
 
-/* ---------- 立即运行一轮（经 Vercel 服务端函数代理，强制访问全部站点） ---------- */
+/* ---------- 立即同步并运行一轮（先保存配置到仓库，再强制访问全部站点） ---------- */
 async function runNow(){
   const statusEl = $("saveStatus");
+  const synced = await syncNow(true);
+  if (!synced){
+    toast("同步失败，未触发运行", true);
+    return;
+  }
   statusEl.innerHTML = '<span style="color:var(--muted)">正在触发 Actions 强制访问全部站点…</span>';
   try {
     const resp = await fetch("/api/run", {
@@ -475,7 +457,7 @@ async function runNow(){
     });
     const j = await resp.json().catch(() => ({}));
     if (resp.ok && j.ok){
-      statusEl.innerHTML = '<span style="color:var(--ok)">已触发 Actions 强制访问全部站点，稍等 1~2 分钟刷新页面即可看到最新延迟</span>';
+      statusEl.innerHTML = '<span style="color:var(--ok)">已同步并触发 Actions 强制访问全部站点，稍等 1~2 分钟刷新页面即可看到最新延迟</span>';
       toast("已触发强制访问全部站点");
     } else {
       statusEl.innerHTML = '<span style="color:var(--bad)">触发失败：' + escapeHtml(j.error || ("HTTP " + resp.status)) + '</span>';
@@ -527,7 +509,6 @@ $("formSubmitBtn").addEventListener("click", submitSite);
 $("formCancelBtn").addEventListener("click", resetForm);
 $("fMode").addEventListener("change", renderModeFields);
 $("runNowBtn").addEventListener("click", runNow);
-$("copyBtn").addEventListener("click", copyJson);
 
 /* 页面加载时：2 小时内免登录 */
 checkLogin();
