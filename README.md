@@ -14,25 +14,28 @@
   - 访问次数 `max_runs`：最多访问多少次（0 = 不限），达到后该站点自动停止
   - 可选每日运行窗口（如只在 09:00~21:00 之间访问）
 - 网页上添加 / 编辑 / 删除 / 启停监控站点
-- **自动同步（无需任何客户端设置）**：换任何浏览器 / 设备打开都一样；网页上的所有修改自动写入仓库 `sites.json`
-- 一键"**立即同步并运行一轮**"：先自动把当前配置保存到仓库，再触发 GitHub Actions **强制访问当前所有启用的站点**（忽略间隔、次数与窗口限制），一步完成
+- **自动同步（无需任何客户端设置）**：换任何浏览器 / 设备打开都一样；网页上的所有修改自动写入仓库 `sites.json`，刷新页面立即读取最新数据（经 `/api/load` 实时读取，不依赖部署）
+- 一键"**立即同步并运行一轮**"：先自动把当前配置保存到仓库，再触发 GitHub Actions **强制访问当前所有启用的站点**（忽略间隔、次数与窗口限制），一步完成；**手动触发不消耗该站点的自动访问次数配额、不影响自动调度**
 - 每个站点显示最近 5 次访问的延迟（毫秒）、HTTP 状态码与趋势条
 
 ## 架构（安全设计）
 
 ```
 你打开 2dh.cc.cd（Vercel 托管的页面 + 服务端函数）
-   │  读取：fetch sites.json / history.json（Vercel 静态文件）
+   │  读取：fetch /api/load  →  服务端函数实时读 GitHub 仓库的 sites.json / history.json（不依赖部署快照）
    │  写入：fetch /api/save  →  服务端函数用 GH_TOKEN（Vercel 环境变量）→ GitHub API 写 sites.json
    │  触发：fetch /api/run   →  服务端函数用 GH_TOKEN → 触发 GitHub Actions
 GitHub 仓库（Private，源码中不含任何密钥）
-   ├─ index.html / sites.json / history.json / last_run.json   ← 页面数据
-   ├─ api/save.js / api/run.js  ← Vercel 服务端函数（Token 从环境变量读取）
+   ├─ index.html / sites.json / history.json / last_run.json   ← 数据权威来源
+   ├─ api/save.js / api/run.js / api/load.js  ← Vercel 服务端函数（Token 从环境变量读取）
    ├─ monitor.py          ← 探测脚本（每站点独立调度）
-   └─ .github/workflows/monitor.yml  ← 每 30 分钟跑一次；有数据变化才提交
-                                        → Vercel 检测到 push 自动重新部署
+   └─ .github/workflows/monitor.yml  ← 每 30 分钟跑一次，有数据变化才提交回仓库
 Token 只存在于：Vercel 项目设置 → Environment Variables → GH_TOKEN（加密存储）
 ```
+
+**数据实时性**：页面每次加载 / 刷新都通过 `/api/load` 从 GitHub 仓库**实时读取**最新数据——
+添加站点、Actions 写入延迟记录后，刷新页面立即看到，**不依赖 Vercel 重新部署**。
+Vercel 部署仅用于托管页面与函数本身。
 
 **安全性说明**：`GH_TOKEN` 只配置在 Vercel 环境变量里，不出现在 index.html、api/*.js 或任何仓库文件中；即使网页源码公开、仓库转 Public，也没有 Token 可看，GitHub 的 Secret Scanning 也不会再检测或强制失效。
 
@@ -41,6 +44,7 @@ Token 只存在于：Vercel 项目设置 → Environment Variables → GH_TOKEN�
 | 文件 | 作用 |
 | --- | --- |
 | `index.html` | 监控面板（Vercel 托管的首页），含密码登录、站点独立配置、自动同步与历史展示；不含任何 Token |
+| `api/load.js` | Vercel 服务端函数：页面实时从 GitHub 仓库读取 `sites.json` / `history.json`（数据不依赖部署快照） |
 | `api/save.js` | Vercel 服务端函数：网页修改站点后，用它写回 GitHub `sites.json` |
 | `api/run.js` | Vercel 服务端函数：网页点"立即运行一轮"，用它触发 GitHub Actions |
 | `monitor.py` | Actions 中运行的探测脚本，逐站点独立调度（Python 标准库，无第三方依赖） |
@@ -57,7 +61,7 @@ Token 只存在于：Vercel 项目设置 → Environment Variables → GH_TOKEN�
 ## 第一步：上传源码到 GitHub（仓库保持 Private）
 
 1. 仓库保持 **Private**（Vercel 支持私有仓库部署）。
-2. 把 `F:\Desktop\dingshifangwen` 里的**全部文件**上传覆盖到 main 分支（含新增的 `api/` 文件夹：`api/save.js`、`api/run.js`）。
+2. 把 `F:\Desktop\dingshifangwen` 里的**全部文件**上传覆盖到 main 分支（含 `api/` 文件夹：`api/load.js`、`api/save.js`、`api/run.js`）。
 3. **`.github/workflows/monitor.yml` 是隐藏文件夹，网页上传传不上去**，二选一：
    - 网页方式：仓库页 **Add file → Create new file**，文件名框输入 `.github/workflows/monitor.yml`，
      把本地该文件内容整体粘贴进去 → Commit changes（GitHub 自动创建目录）。
@@ -151,7 +155,7 @@ Token 只存在于：Vercel 项目设置 → Environment Variables → GH_TOKEN�
 
 - `mode: "fixed"`：每隔 `interval_hours` 小时访问一次。
 - `mode: "random"`：每次访问后，在 `random_min_hours` ~ `random_max_hours` 之间随机安排下次访问时间。
-- `max_runs`：该站点最多访问次数，达到后自动停止（`0` = 不限）。
+- `max_runs`：该站点**自动**访问次数上限，达到后自动停止（`0` = 不限）；网页"立即同步并运行一轮"的手动触发不消耗此配额。
 - `window`：可留空（全天）；`end` 早于 `start` 表示跨午夜（如 22:00~06:00）。
 
 ## 注意事项
@@ -159,6 +163,7 @@ Token 只存在于：Vercel 项目设置 → Environment Variables → GH_TOKEN�
 - **部署频率**：monitor.py 只在有站点实际被访问时才写回数据，所以只有数据变化才触发 Vercel 重新部署，不会每 30 分钟无谓构建。
 - **Vercel 免费计划限制**：Hobby 计划每月有一定构建与带宽额度（日常监控完全够用）。
   若收到构建次数告警，可把 `monitor.yml` 的 cron 改为 `0 * * * *`（每小时检查一次），误差相应变大。
+- **记录时间统一为北京时间**：monitor.py 在 GitHub Actions（UTC 时区）运行时已自动换算为北京时间（UTC+8），history.json 与页面展示的时间均为北京时间。
 - **探测节点在海外**：GitHub Actions 运行在 GitHub 海外服务器，测出的延迟是海外节点到目标站的延迟，并非你所在地区用户的访问速度。
 - **登录密码为前端校验**：登录仅防止随意浏览，懂技术的人仍可通过查看仓库源码或直接访问数据文件读取内容。
 - **Token 安全**：`GH_TOKEN` 只存在于 Vercel 环境变量，任何仓库文件、页面源码都不含 Token。
