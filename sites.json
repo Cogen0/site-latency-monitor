@@ -10,6 +10,17 @@
       "random_max_hours": 12,
       "max_runs": 25,
       "window": null
+    },
+    {
+      "name": "云南高校论坛",
+      "url": "http://dkjdkj.tttttttttt.top/",
+      "enabled": true,
+      "mode": "fixed",
+      "interval_hours": 2,
+      "random_min_hours": 1,
+      "random_max_hours": 12,
+      "max_runs": 10,
+      "window": null
     }
   ]
 }
