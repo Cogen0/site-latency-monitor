@@ -5,18 +5,19 @@
 
 核心设计：每个站点独立调度，互不影响。
 每个站点在 sites.json 里自带调度参数：
-  - mode: "fixed"  -> 每隔 interval_hours 小时访问一次
-          "random" -> 每次访问后，在 random_min_hours~random_max_hours 之间随机安排下次访问
-  - max_runs: 最多"自动"访问多少次（0 = 不限次数）
+  - mode: "fixed"  -> 每隔 interval_hours 小时访问一次（持续循环，不限总次数）
+          "random" -> 每次访问后，在 random_min_hours~random_max_hours 之间随机安排下次访问（持续循环）
+          "window_runs" -> 在 window_hours 窗口内随机分布 runs 次访问，窗口结束自动循环，不限总次数
   - window（可选）: 仅允许在每日 [start, end] 时段内发起访问（HH:MM 格式，end 早于 start 视为跨午夜）
 
 每轮只访问"当前已到期"的站点，未到期的站点不访问。
 结果写入 history.json（每站点保留最近 5 次）；调度状态写入 last_run.json。
 
-支持 --force 参数：强制访问所有启用的站点（忽略调度、每日窗口与自动次数限制），
+支持 --force 参数：强制访问所有启用的站点（忽略调度与每日窗口限制），
 供网页"立即运行一轮"按钮使用。
-注意：--force 是手动临时检查，不消耗该站点的自动访问配额（auto_runs）、
+注意：--force 是手动临时检查，不累计自动访问次数（auto_runs）、
 不推迟自动调度时间（last_ts / next_ts 不更新），因此手动触发不影响自动计划。
+所有站点均不设访问总数上限，持续按各自调度循环运行。
 
 所有记录时间统一为北京时间（UTC+8，GitHub Actions 系统时间为 UTC）。
 
@@ -99,12 +100,7 @@ def in_window(window, now):
 
 def site_due(site, state, now):
     """判断某站点本轮是否需要访问；返回 (due, reason)
-    max_runs 只统计"自动访问次数"（auto_runs），手动 --force 不消耗配额"""
-    max_runs = int(site.get("max_runs", 0) or 0)
-    auto_runs = int(state.get("auto_runs", 0))
-    if max_runs > 0 and auto_runs >= max_runs:
-        return False, f"自动访问次数已达上限 {max_runs}（如需继续请改大 max_runs）"
-
+    不设访问总数上限，所有模式持续循环"""
     mode = site.get("mode", "fixed")
     if mode == "random":
         next_ts = state.get("next_ts")
@@ -196,7 +192,7 @@ def main():
 
         # 更新该站点状态：
         # - run_count  总访问次数（含手动 force），仅用于展示
-        # - auto_runs  自动访问次数（--force 不累加，不消耗 max_runs 配额）
+        # - auto_runs  自动访问次数（--force 不累加），仅用于展示
         # - 手动 force 不更新 last_ts / next_ts，不影响自动调度
         state["run_count"] = int(state.get("run_count", 0)) + 1
         if not force:
