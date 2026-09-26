@@ -191,6 +191,7 @@ let cfg = null;            // sites.json 配置对象
 let history = [];          // history.json 记录
 let loggedIn = false;
 let editingIndex = null;   // 正在编辑的站点下标，null 表示添加模式
+let pendingPurge = [];     // 已删除站点 URL 列表，下次同步时连同 history.json 中的记录一并清除
 
 const $ = id => document.getElementById(id);
 
@@ -422,9 +423,13 @@ function renderSiteList(){
     });
     item.querySelector(".edit").addEventListener("click", () => loadSiteToForm(idx));
     item.querySelector(".del").addEventListener("click", () => {
+      const delUrl = cfg.sites[idx].url;
       cfg.sites.splice(idx, 1);
+      pendingPurge.push(delUrl);
+      history = history.filter(r => r.url !== delUrl);
       renderSiteList();
-      scheduleAutoSave("已删除站点，自动同步中…");
+      renderHistory();
+      scheduleAutoSave("已删除站点，其历史记录已清除并同步中…");
     });
     box.appendChild(item);
   });
@@ -440,10 +445,11 @@ async function syncNow(silent){
     const resp = await fetch("/api/save", {
       method: "POST",
       headers: {"Content-Type": "application/json"},
-      body: JSON.stringify({sites: cfg.sites || []})
+      body: JSON.stringify({sites: cfg.sites || [], purgeUrls: pendingPurge})
     });
     const j = await resp.json();
     if (resp.ok && j.ok){
+      pendingPurge = [];
       statusEl.innerHTML = '<span style="color:var(--ok)">已自动同步到仓库（' + new Date().toLocaleTimeString() + '），GitHub Actions 将按各站点调度运行</span>';
       return true;
     } else {
