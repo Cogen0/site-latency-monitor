@@ -8,7 +8,6 @@
       "interval_hours": 4,
       "random_min_hours": 1,
       "random_max_hours": 12,
-      "max_runs": 25,
       "window": null
     },
     {
@@ -19,7 +18,6 @@
       "interval_hours": 2,
       "random_min_hours": 1,
       "random_max_hours": 12,
-      "max_runs": 10,
       "window": null
     },
     {
@@ -30,7 +28,6 @@
       "interval_hours": 4,
       "random_min_hours": 1,
       "random_max_hours": 12,
-      "max_runs": 5,
       "window": null
     },
     {
@@ -41,7 +38,6 @@
       "interval_hours": 4,
       "random_min_hours": 1,
       "random_max_hours": 12,
-      "max_runs": 4,
       "window": null
     }
   ]
