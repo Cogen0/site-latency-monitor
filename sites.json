@@ -32,6 +32,17 @@
       "random_max_hours": 12,
       "max_runs": 5,
       "window": null
+    },
+    {
+      "name": "示例站点",
+      "url": "https://www.baidu.com",
+      "enabled": true,
+      "mode": "fixed",
+      "interval_hours": 4,
+      "random_min_hours": 1,
+      "random_max_hours": 12,
+      "max_runs": 1,
+      "window": null
     }
   ]
 }
