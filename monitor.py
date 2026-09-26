@@ -39,7 +39,7 @@ BEIJING_OFFSET = timedelta(hours=8)   # 北京时间 = UTC + 8
 
 def now_bj():
     """返回当前北京时间（naive datetime），用于所有记录与调度判断"""
-    return datetime.utcnow() + BEIJING_OFFSET
+    return datetime.now(timezone.utc).replace(tzinfo=None) + BEIJING_OFFSET
 
 
 def load_json(path, default):
@@ -115,6 +115,28 @@ def site_due(site, state, now):
         except Exception:
             return True, "next_ts 解析失败，立即访问"
         return now >= next_dt, f"计划访问时间 {next_ts}"
+    elif mode == "window_runs":
+        # 窗口内随机访问 N 次：每个 window_hours 窗口内随机分布 runs 次访问，窗口结束自动循环
+        window_h = float(site.get("window_hours", 2))
+        runs = int(site.get("runs", 10) or 1)
+        w_start = state.get("window_start")
+        w_next = state.get("window_next")
+        if not w_start or not w_next:
+            return True, "新窗口：立即访问第一次"
+        try:
+            ws_dt = datetime.strptime(w_start, "%Y-%m-%d %H:%M:%S")
+        except Exception:
+            return True, "window_start 解析失败，立即访问"
+        if now >= ws_dt + timedelta(hours=window_h):
+            return True, f"上一窗口（{window_h}h）已结束，开始新窗口"
+        try:
+            wn_dt = datetime.strptime(w_next, "%Y-%m-%d %H:%M:%S")
+        except Exception:
+            return True, "window_next 解析失败，立即访问"
+        done = int(state.get("window_done", 0))
+        if now >= wn_dt:
+            return True, f"窗口内计划访问 {w_next}（第 {done + 1}/{runs} 次）"
+        return False, f"窗口内下次计划 {w_next}"
     else:
         interval_h = float(site.get("interval_hours", 24))
         last_ts = state.get("last_ts", "2000-01-01 00:00:00")
@@ -186,6 +208,31 @@ def main():
                 next_dt = now + timedelta(seconds=random.uniform(min_h, max_h) * 3600)
                 state["next_ts"] = next_dt.strftime("%Y-%m-%d %H:%M:%S")
                 print(f"[ok] {url} 下次随机访问时间：{state['next_ts']}")
+            elif site.get("mode") == "window_runs":
+                window_h = float(site.get("window_hours", 2))
+                runs = int(site.get("runs", 10) or 1)
+                slot_sec = window_h * 3600 / runs   # 每个访问槽位时长
+                # 窗口过期则重置为新窗口（本次访问即新窗口第一次）
+                try:
+                    ws_dt = datetime.strptime(state.get("window_start", ""), "%Y-%m-%d %H:%M:%S") if state.get("window_start") else None
+                except Exception:
+                    ws_dt = None
+                if ws_dt is None or now >= ws_dt + timedelta(hours=window_h):
+                    state["window_start"] = now_str
+                    ws_dt = now
+                    state["window_done"] = 0
+                done = int(state.get("window_done", 0)) + 1
+                state["window_done"] = done
+                if done >= runs:
+                    # 本窗口次数已完成，立即开始新窗口
+                    state["window_start"] = now_str
+                    state["window_done"] = 0
+                    state["window_next"] = (now + timedelta(seconds=slot_sec + random.uniform(0, slot_sec * 0.8))).strftime("%Y-%m-%d %H:%M:%S")
+                    print(f"[ok] {url} 本窗口 {runs} 次已完成，已自动开始新窗口")
+                else:
+                    # 窗口内下一次计划时间：相对窗口开始时间，避免检查滞后累积
+                    state["window_next"] = (ws_dt + timedelta(seconds=done * slot_sec + random.uniform(0, slot_sec * 0.8))).strftime("%Y-%m-%d %H:%M:%S")
+                    print(f"[ok] {url} 窗口内第 {done}/{runs} 次，下次计划 {state['window_next']}")
 
     if results:
         # ---- 更新历史（每站点保留最近 5 次）----

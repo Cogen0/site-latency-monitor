@@ -117,14 +117,17 @@ svg{vertical-align:-2px}
       <div class="form-row">
         <div><label>访问模式</label>
           <select id="fMode">
-            <option value="fixed">固定间隔：每隔 N 小时访问一次</option>
-            <option value="random">随机间隔：在 N1~N2 小时之间随机访问一次</option>
+            <option value="fixed">固定间隔：每隔 N 小时访问一次（共 M 次）</option>
+            <option value="random">随机间隔：每次访问后 N1~N2 小时随机（共 M 次）</option>
+            <option value="window_runs">窗口内随机：N 小时窗口内随机访问 K 次（循环）</option>
           </select>
         </div>
         <div id="fIntervalWrap"><label>固定间隔（小时）</label><input type="number" id="fInterval" min="0.1" step="0.1" value="4"></div>
         <div id="fRandMinWrap" class="hidden"><label>随机间隔最小值（小时）</label><input type="number" id="fRandMin" min="0.1" step="0.1" value="1"></div>
         <div id="fRandMaxWrap" class="hidden"><label>随机间隔最大值（小时）</label><input type="number" id="fRandMax" min="0.1" step="0.1" value="12"></div>
-        <div><label>访问次数（0 = 不限）</label><input type="number" id="fMaxRuns" min="0" step="1" value="0"></div>
+        <div id="fWindowWrap" class="hidden"><label>窗口时长（小时）</label><input type="number" id="fWindow" min="0.1" step="0.1" value="2"></div>
+        <div id="fRunsWrap" class="hidden"><label>窗口内访问次数</label><input type="number" id="fRuns" min="1" step="1" value="10"></div>
+        <div id="fMaxRunsWrap"><label>访问次数（0 = 不限）</label><input type="number" id="fMaxRuns" min="0" step="1" value="0"></div>
       </div>
       <div class="form-row">
         <div><label>每日运行窗口开始（可选，如 09:00）</label><input type="text" id="fWinStart" placeholder="留空=全天"></div>
@@ -146,7 +149,7 @@ svg{vertical-align:-2px}
     <div class="note">
       同步通过 <b>Vercel 服务端函数</b>自动完成（Token 仅存在于 Vercel 环境变量，源码与页面不含密钥），
       换任何浏览器 / 设备打开都一样，无需重复设置。页面上添加、修改站点后，会自动写入仓库 <code>sites.json</code>；
-      GitHub Actions 每 30 分钟按各站点自己的调度运行。点「立即运行一轮」会<b>强制访问当前所有启用的站点</b>
+      GitHub Actions 每 5 分钟检查各站点是否到期，按各站点自己的调度运行。点「立即运行一轮」会<b>强制访问当前所有启用的站点</b>
       （忽略间隔、次数与窗口限制），用于随时查看全部站点的最新延迟。
     </div>
     <div class="form-row" style="margin-top:12px;align-items:flex-end">
@@ -217,11 +220,16 @@ async function fetchJson(path){
   return resp.json();
 }
 function scheduleSummary(s){
-  let txt = s.mode === "random"
-    ? "随机间隔 " + (s.random_min_hours ?? 1) + "~" + (s.random_max_hours ?? 12) + " 小时访问一次"
-    : "每 " + (s.interval_hours ?? 24) + " 小时访问一次";
-  const mr = parseInt(s.max_runs, 10) || 0;
-  txt += mr > 0 ? " · 共 " + mr + " 次" : " · 不限次数";
+  let txt;
+  if (s.mode === "window_runs"){
+    txt = "窗口内随机访问 " + (s.runs ?? 10) + " 次 / 每 " + (s.window_hours ?? 2) + " 小时（循环）";
+  } else {
+    txt = s.mode === "random"
+      ? "随机间隔 " + (s.random_min_hours ?? 1) + "~" + (s.random_max_hours ?? 12) + " 小时访问一次"
+      : "每 " + (s.interval_hours ?? 24) + " 小时访问一次";
+    const mr = parseInt(s.max_runs, 10) || 0;
+    txt += mr > 0 ? " · 共 " + mr + " 次" : " · 不限次数";
+  }
   if (s.window && s.window.start && s.window.end) txt += " · 每日 " + s.window.start + "~" + s.window.end;
   return txt;
 }
@@ -277,13 +285,20 @@ async function loadAll(){
 
 /* ---------- 站点表单 ---------- */
 function renderModeFields(){
-  const isRandom = $("fMode").value === "random";
-  $("fIntervalWrap").classList.toggle("hidden", isRandom);
-  $("fRandMinWrap").classList.toggle("hidden", !isRandom);
-  $("fRandMaxWrap").classList.toggle("hidden", !isRandom);
-  $("fModeDesc").textContent = isRandom
-    ? "每次访问完成后，在最小~最大小时数之间随机决定下一次访问时间。"
-    : "每隔设定的小时数访问一次（由 Actions 每 30 分钟检查一次是否到期）。";
+  const m = $("fMode").value;
+  const isRandom = m === "random";
+  const isWindow = m === "window_runs";
+  $("fIntervalWrap").classList.toggle("hidden", isRandom || isWindow);
+  $("fRandMinWrap").classList.toggle("hidden", !isRandom || isWindow);
+  $("fRandMaxWrap").classList.toggle("hidden", !isRandom || isWindow);
+  $("fWindowWrap").classList.toggle("hidden", !isWindow);
+  $("fRunsWrap").classList.toggle("hidden", !isWindow);
+  $("fMaxRunsWrap").classList.toggle("hidden", isWindow);   // 窗口内随机模式不设总次数
+  $("fModeDesc").textContent = isWindow
+    ? "在设定的时间窗口（如 2 小时）内随机分布 K 次访问，窗口结束自动开始下一窗口，不设总次数上限（Actions 每 5 分钟检查一次是否到期）。"
+    : isRandom
+      ? "每次访问完成后，在最小~最大小时数之间随机决定下一次访问时间（由 Actions 每 5 分钟检查一次是否到期）。"
+      : "每隔设定的小时数访问一次（由 Actions 每 5 分钟检查一次是否到期）。";
 }
 function resetForm(){
   editingIndex = null;
@@ -297,6 +312,8 @@ function resetForm(){
   $("fRandMin").value = "1";
   $("fRandMax").value = "12";
   $("fMaxRuns").value = "0";
+  $("fWindow").value = "2";
+  $("fRuns").value = "10";
   $("fWinStart").value = "";
   $("fWinEnd").value = "";
   renderModeFields();
@@ -314,6 +331,8 @@ function loadSiteToForm(idx){
   $("fRandMin").value = s.random_min_hours ?? 1;
   $("fRandMax").value = s.random_max_hours ?? 12;
   $("fMaxRuns").value = s.max_runs ?? 0;
+  $("fWindow").value = s.window_hours ?? 2;
+  $("fRuns").value = s.runs ?? 10;
   $("fWinStart").value = (s.window && s.window.start) || "";
   $("fWinEnd").value = (s.window && s.window.end) || "";
   renderModeFields();
@@ -332,17 +351,23 @@ function collectFormData(){
   const name = $("fName").value.trim() || url;
   const winStart = $("fWinStart").value.trim();
   const winEnd = $("fWinEnd").value.trim();
+  const mode = $("fMode").value;
   const data = {
     name,
     url,
     enabled: true,
-    mode: $("fMode").value,
+    mode: mode,
     interval_hours: Math.max(0.1, parseFloat($("fInterval").value) || 4),
     random_min_hours: Math.max(0.1, parseFloat($("fRandMin").value) || 1),
     random_max_hours: Math.max(0.1, parseFloat($("fRandMax").value) || 12),
     max_runs: Math.max(0, parseInt($("fMaxRuns").value, 10) || 0),
     window: (winStart || winEnd) ? {start: winStart, end: winEnd} : null
   };
+  if (mode === "window_runs"){
+    data.window_hours = Math.max(0.1, parseFloat($("fWindow").value) || 2);
+    data.runs = Math.max(1, parseInt($("fRuns").value, 10) || 10);
+    delete data.max_runs;
+  }
   return data;
 }
 function submitSite(){
