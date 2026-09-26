@@ -9,13 +9,14 @@ const UA = "latency-monitor";
 
 const gh = (path, init) =>
   fetch(`https://api.github.com/repos/${GH_REPO}/contents/${path}`, {
+    method: init && init.method,
     headers: {
+      ...((init && init.headers) || {}),
       Authorization: `Bearer ${process.env.GH_TOKEN}`,
       "User-Agent": UA,
       Accept: "application/vnd.github+json",
-      ...(init && init.headers),
     },
-    ...init,
+    body: init && init.body,
   });
 
 export default async function handler(req, res) {
