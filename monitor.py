@@ -28,7 +28,7 @@ import json
 import random
 import time
 import urllib.request
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 
 CONFIG_FILE = "sites.json"
 HISTORY_FILE = "history.json"
