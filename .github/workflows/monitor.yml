@@ -1,12 +1,19 @@
 # GitHub Actions 定时工作流：站点延迟监控
 #
 # 调度说明：
-# - 本工作流每 30 分钟被 GitHub 触发一次（cron 最小粒度限制，实际执行可能有几分钟偏差）
+# - 本工作流每 5 分钟被 GitHub 触发一次，用于支持"窗口内随机访问 N 次"等密集调度
+#   （例如 2 小时内随机访问 10 次，约每 12 分钟一次，需要 5 分钟级检查粒度）
 # - 是否真正执行探测由 monitor.py 根据 sites.json 的配置判断
 #   （每个站点独立调度：fixed 模式按该站点 interval_hours 判断；
-#    random 模式按该站点 last_run.sites[url].next_ts 判断；max_runs 各自生效）
-# - 因此"间隔多久/多久之内随机访问一次"可在网页上随意修改，
-#   不需要再改动本文件
+#    random 模式按该站点 last_run.sites[url].next_ts 判断；
+#    window_runs 模式按窗口内随机时间点判断，窗口结束自动循环，无总次数限制）
+# - 因此"间隔多久/多久之内随机访问多少次"可在网页上随意修改，不需要再改动本文件
+#
+# 额度提示：*/5 每分钟共约 8640 次运行/月。
+#   - 仓库为 Public：Actions 免费无额度限制，推荐保持 Public；
+#   - 若转 Private：每月 2000 分钟免费额度会紧张（约 2500+ 分钟），
+#     需把下方 cron 改回 '*/15 * * * *' 或 '*/30 * * * *' 以省额度，
+#     相应"窗口内随机N次"的完成粒度也会变粗。
 #
 # 部署前必须开启仓库权限：
 #   仓库 Settings -> Actions -> General -> Workflow permissions
@@ -20,7 +27,7 @@ name: Site Latency Monitor
 
 on:
   schedule:
-    - cron: '*/30 * * * *'   # 每 30 分钟触发一次（Private 仓库 Actions 每月 2000 分钟免费额度，10 分钟一次会超额）
+    - cron: '*/5 * * * *'   # 每 5 分钟触发一次（支持"2 小时窗口内随机访问 10 次"）
   workflow_dispatch:
     inputs:
       force_all:
