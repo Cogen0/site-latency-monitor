@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-站点延迟监控脚本（由 GitHub Actions 每 30 分钟调用一次）
+站点延迟监控脚本（由 GitHub Actions 周期调用：外部定时器经 /api/tick 触发为主，schedule 为备份驱动）
 
 核心设计：每个站点独立调度，互不影响。
 每个站点在 sites.json 里自带调度参数：
