@@ -266,7 +266,7 @@ function doLogout(){
 /* ---------- 数据加载（经 /api/load 实时读 GitHub 仓库，不依赖 Vercel 部署快照） ---------- */
 async function loadAll(){
   try {
-    const resp = await fetch("/api/load", {method: "GET"});
+    const resp = await fetch("/api/load?t=" + Date.now(), {method: "GET", cache: "no-store"});
     if (!resp.ok) throw new Error("HTTP " + resp.status);
     const data = await resp.json();
     cfg = data["sites.json"] || {sites: []};
