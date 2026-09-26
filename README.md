@@ -14,11 +14,11 @@
     - **固定间隔**：每隔 N 小时访问一次（共 M 次）
     - **随机间隔**：每次访问后，在 N1~N2 小时之间随机安排下次（共 M 次）
     - **窗口内随机**：在每个 N 小时窗口内随机分布 K 次访问（如 2 小时内随机访问 10 次），窗口结束自动开始下一窗口，**不设总次数上限、持续循环**
-  - 访问次数 `max_runs`：固定/随机模式最多自动访问多少次（0 = 不限）；窗口模式不设该字段
+  - **不设访问总数**：所有模式都持续循环、不限总次数（历史配置里的 max_runs 会在下次页面同步时自动清除）
   - 可选每日运行窗口（如只在 09:00~21:00 之间访问）
 - 网页上添加 / 编辑 / 删除 / 启停监控站点（**删除站点时自动清除该站点的全部历史延迟记录**）
 - **自动同步（无需任何客户端设置）**：换任何浏览器 / 设备打开都一样；网页上的所有修改自动写入仓库 `sites.json`，刷新页面立即读取最新数据（经 `/api/load` 实时读取，不依赖部署）
-- 一键"**立即同步并运行一轮**"：先自动把当前配置保存到仓库，再触发 GitHub Actions **强制访问当前所有启用的站点**（忽略间隔、次数与窗口限制），一步完成；**手动触发不消耗该站点的自动访问次数配额、不影响自动调度**
+- 一键"**立即同步并运行一轮**"：先自动把当前配置保存到仓库，再触发 GitHub Actions **强制访问当前所有启用的站点**（忽略间隔与窗口限制），一步完成；**手动触发不累计自动访问次数、不影响自动调度**
 - 每个站点显示最近 5 次访问的延迟（毫秒）、HTTP 状态码与趋势条
 
 ## 架构（安全设计）
@@ -32,8 +32,8 @@ GitHub 仓库（Private，源码中不含任何密钥）
    ├─ index.html / sites.json / history.json / last_run.json   ← 数据权威来源
    ├─ api/save.js / api/run.js / api/load.js  ← Vercel 服务端函数（Token 从环境变量读取）
    ├─ monitor.py          ← 探测脚本（每站点独立调度）
-   └─ .github/workflows/monitor.yml  ← 每 5 分钟检查一次各站点是否到期，有数据变化才提交回仓库
-Token 只存在于：Vercel 项目设置 → Environment Variables → GH_TOKEN（加密存储）
+   └─ .github/workflows/monitor.yml  ← 双驱动：外部定时器(cron-job.org)→/api/tick→repository_dispatch 为主，schedule 备份
+Token 只存在于：Vercel 项目设置 → Environment Variables → GH_TOKEN / TICK_KEY（加密存储）
 ```
 
 **数据实时性**：页面每次加载 / 刷新都通过 `/api/load` 从 GitHub 仓库**实时读取**最新数据——
@@ -50,12 +50,13 @@ Vercel 部署仅用于托管页面与函数本身。
 | `api/load.js` | Vercel 服务端函数：页面实时从 GitHub 仓库读取 `sites.json` / `history.json`（数据不依赖部署快照） |
 | `api/save.js` | Vercel 服务端函数：网页修改站点后，用它写回 GitHub `sites.json` |
 | `api/run.js` | Vercel 服务端函数：网页点"立即运行一轮"，用它触发 GitHub Actions |
+| `api/tick.js` | Vercel 服务端函数：外部定时器每 5 分钟调用它，触发 repository_dispatch 让 Actions 按调度探测（不受 schedule 节流限制） |
 | `monitor.py` | Actions 中运行的探测脚本，逐站点独立调度（Python 标准库，无第三方依赖） |
 | `sites.json` | 站点配置：每个站点自带模式/间隔/次数/窗口 |
 | `history.json` | 延迟历史记录，Actions 自动写入，每站点保留 5 条 |
 | `last_run.json` | 各站点调度状态（上次访问时间 / 下次随机时间 / 已访问次数 / 窗口状态） |
 | `CNAME` | 仅 GitHub Pages 需要；**Vercel 完全忽略**，可保留可删除 |
-| `.github/workflows/monitor.yml` | GitHub Actions 定时工作流（每 5 分钟检查一次各站点是否到期，支持"窗口内随机 N 次"密集调度） |
+| `.github/workflows/monitor.yml` | GitHub Actions 定时工作流（schedule 备份 + repository_dispatch 主驱动，支持"窗口内随机 N 次"密集调度） |
 
 ---
 
@@ -95,6 +96,7 @@ Vercel 部署仅用于托管页面与函数本身。
    - Key 填 `GH_TOKEN`，Value 粘贴你的 Token
    - Environments 勾选 Production（+ Preview、Development 可选）
    - 点 **Save**。**保存后到项目 Deployments 重新 Deploy 一次**（环境变量对已有部署不生效，重新部署后生效）。
+3. **再添加一个 `TICK_KEY`**（外部定时器密钥，任意长随机串，如 `tick-xxxxxxxx`）：同样在 Environment Variables 添加 → Save → 重新 Deploy。
 
 ## 第三步：在 Vercel 部署（免费）
 
@@ -127,7 +129,21 @@ Vercel 部署仅用于托管页面与函数本身。
    - 想 www 也能访问，回 Vercel Domains 里再加 `www.2dh.cc.cd`
 4. DNS 生效需几分钟到几小时。生效后打开 `https://2dh.cc.cd` 应显示登录页。Vercel 自动申请 HTTPS 证书。
 
-## 第五步：验证全流程
+## 第五步：配置外部定时器（让"窗口内随机 N 次"真正按 5 分钟粒度运行）
+
+> 背景：GitHub 免费账号对 Actions 的 schedule 定时触发有节流，实际约 3~5 小时才触发一次，
+> 靠它完成不了"2 小时窗口内随机访问 10 次"。用免费外部定时器每 5 分钟调用你的接口来触发，不受节流影响。
+
+1. 打开 **cron-job.org**，注册免费账号。
+2. 点 **Create cron job**：
+   - **URL**：`https://2dh.cc.cd/api/tick?key=你的TICK_KEY`（TICK_KEY 就是上面在 Vercel 环境变量里设置的随机串）
+   - **Schedule / Every**：选 **Minutes**，间隔 **5**（免费版支持每分钟）
+   - 其余默认，点 **Create / Save**
+3. 该服务每 5 分钟调用一次你的接口 → 触发 GitHub Actions → monitor.py 按各站点调度判断是否访问。
+4. 想验证：保存后在 cron-job.org 的 **Executions / Logs** 里能看到每次调用成功（返回 `{"ok":true}`）；
+   仓库 Actions 页能看到 `event=repository_dispatch` 的运行记录。
+
+## 第六步：验证全流程
 
 1. 仓库 **Actions** 页：应能看到 **Site Latency Monitor** 工作流。
 2. 点 **Run workflow**（可选勾选 **force_all**，强制访问全部站点）手动跑一次。
@@ -149,7 +165,6 @@ Vercel 部署仅用于托管页面与函数本身。
       "interval_hours": 4,
       "random_min_hours": 1,
       "random_max_hours": 12,
-      "max_runs": 0,
       "window_hours": 2,
       "runs": 10,
       "window": { "start": "09:00", "end": "21:00" }
@@ -158,10 +173,10 @@ Vercel 部署仅用于托管页面与函数本身。
 }
 ```
 
-- `mode: "fixed"`：每隔 `interval_hours` 小时访问一次。
-- `mode: "random"`：每次访问后，在 `random_min_hours` ~ `random_max_hours` 之间随机安排下次访问时间。
+- `mode: "fixed"`：每隔 `interval_hours` 小时访问一次，**持续循环、不限总次数**。
+- `mode: "random"`：每次访问后，在 `random_min_hours` ~ `random_max_hours` 之间随机安排下次访问时间，**持续循环、不限总次数**。
 - `mode: "window_runs"`：**窗口内随机 N 次**——在 `window_hours` 小时窗口内随机分布 `runs` 次访问（如 2 小时窗口、10 次 ≈ 每 12 分钟一次），窗口结束自动开始下一窗口，**不设总次数上限、持续循环**；`window_hours` 和 `runs` 仅在窗口模式使用。
-- `max_runs`：固定/随机模式该站点**自动**访问次数上限，达到后自动停止（`0` = 不限）；网页"立即同步并运行一轮"的手动触发不消耗此配额。窗口模式不使用此字段。
+- **所有模式都不设访问总数上限**；历史配置里的 `max_runs` 字段会被页面同步自动清除，无任何功能影响。
 - `window`：可留空（全天）；`end` 早于 `start` 表示跨午夜（如 22:00~06:00）。
 
 ## 注意事项
