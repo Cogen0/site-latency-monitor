@@ -2,13 +2,6 @@
   {
     "url": "http://1dh.l.cd/",
     "name": "文件中转站",
-    "latency_ms": 1176.17,
-    "http_status": 200,
-    "ts": "2026-09-26 07:52:17"
-  },
-  {
-    "url": "http://1dh.l.cd/",
-    "name": "文件中转站",
     "latency_ms": 1080.38,
     "http_status": 200,
     "ts": "2026-09-26 16:56:43"
@@ -35,11 +28,11 @@
     "ts": "2026-09-27 03:05:23"
   },
   {
-    "url": "http://dkjdkj.tttttttttt.top/",
-    "name": "云南高校论坛",
-    "latency_ms": 389.32,
+    "url": "http://1dh.l.cd/",
+    "name": "文件中转站",
+    "latency_ms": 1107.16,
     "http_status": 200,
-    "ts": "2026-09-26 21:05:23"
+    "ts": "2026-09-27 07:10:26"
   },
   {
     "url": "http://dkjdkj.tttttttttt.top/",
@@ -70,11 +63,11 @@
     "ts": "2026-09-27 05:05:26"
   },
   {
-    "url": "http://wdzzzyx.tttttttttt.top",
-    "name": "蓝莓",
-    "latency_ms": 482.57,
+    "url": "http://dkjdkj.tttttttttt.top/",
+    "name": "云南高校论坛",
+    "latency_ms": 1084.88,
     "http_status": 200,
-    "ts": "2026-09-26 07:52:17"
+    "ts": "2026-09-27 07:10:26"
   },
   {
     "url": "http://wdzzzyx.tttttttttt.top",
@@ -105,6 +98,13 @@
     "ts": "2026-09-27 03:05:23"
   },
   {
+    "url": "http://wdzzzyx.tttttttttt.top",
+    "name": "蓝莓",
+    "latency_ms": 937.68,
+    "http_status": 200,
+    "ts": "2026-09-27 07:10:26"
+  },
+  {
     "url": "http://aoei.tttttttttt.top/",
     "name": "121",
     "latency_ms": 541.52,
@@ -131,5 +131,12 @@
     "latency_ms": 756.64,
     "http_status": 200,
     "ts": "2026-09-27 03:05:23"
+  },
+  {
+    "url": "http://aoei.tttttttttt.top/",
+    "name": "121",
+    "latency_ms": 449.64,
+    "http_status": 200,
+    "ts": "2026-09-27 07:10:26"
   }
 ]
