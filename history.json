@@ -1,33 +1,5 @@
 [
   {
-    "url": "https://www.baidu.com",
-    "name": "示例站点",
-    "latency_ms": 1169.82,
-    "http_status": 200,
-    "ts": "2026-09-24 16:40:49"
-  },
-  {
-    "url": "https://www.baidu.com",
-    "name": "示例站点",
-    "latency_ms": 1456.16,
-    "http_status": 200,
-    "ts": "2026-09-25 02:34:16"
-  },
-  {
-    "url": "https://www.baidu.com",
-    "name": "示例站点",
-    "latency_ms": 2850.61,
-    "http_status": 200,
-    "ts": "2026-09-25 02:51:26"
-  },
-  {
-    "url": "https://www.baidu.com",
-    "name": "示例站点",
-    "latency_ms": 2171.94,
-    "http_status": 200,
-    "ts": "2026-09-25 03:00:32"
-  },
-  {
     "url": "http://1dh.l.cd/",
     "name": "文件中转站",
     "latency_ms": 830.01,
