@@ -33,7 +33,7 @@
     {
       "name": "121",
       "url": "http://aoei.tttttttttt.top/",
-      "enabled": true,
+      "enabled": false,
       "mode": "fixed",
       "interval_hours": 4,
       "random_min_hours": 1,
