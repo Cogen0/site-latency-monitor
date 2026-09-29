@@ -33,7 +33,7 @@
     {
       "name": "导航中转",
       "url": "http://duan.tttttttttt.top/",
-      "enabled": false,
+      "enabled": true,
       "mode": "fixed",
       "interval_hours": 4,
       "random_min_hours": 1,
