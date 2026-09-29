@@ -138,5 +138,12 @@
     "latency_ms": 684.09,
     "http_status": 200,
     "ts": "2026-09-28 07:25:22"
+  },
+  {
+    "url": "http://duan.tttttttttt.top/",
+    "name": "导航中转",
+    "latency_ms": 385.02,
+    "http_status": 200,
+    "ts": "2026-09-29 19:50:30"
   }
 ]
