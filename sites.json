@@ -39,6 +39,16 @@
       "random_min_hours": 1,
       "random_max_hours": 12,
       "window": null
+    },
+    {
+      "name": "森乙",
+      "url": "http://www.shenyi.de5.net",
+      "enabled": true,
+      "mode": "random",
+      "interval_hours": 4,
+      "random_min_hours": 1,
+      "random_max_hours": 12,
+      "window": null
     }
   ]
 }
