@@ -10,9 +10,9 @@
       "auto_runs": 35
     },
     "http://dkjdkj.tttttttttt.top/": {
-      "last_ts": "2026-10-02 01:35:26",
-      "run_count": 73,
-      "auto_runs": 67
+      "last_ts": "2026-10-02 03:40:29",
+      "run_count": 74,
+      "auto_runs": 68
     },
     "http://wdzzzyx.tttttttttt.top": {
       "last_ts": "2026-10-02 00:05:23",
@@ -30,10 +30,10 @@
       "last_ts": "2026-10-02 00:20:31"
     },
     "http://www.shenyi.de5.net": {
-      "run_count": 2,
-      "auto_runs": 2,
-      "last_ts": "2026-10-01 22:26:08",
-      "next_ts": "2026-10-02 03:38:39"
+      "run_count": 3,
+      "auto_runs": 3,
+      "last_ts": "2026-10-02 03:40:29",
+      "next_ts": "2026-10-02 08:35:03"
     }
   }
 }
