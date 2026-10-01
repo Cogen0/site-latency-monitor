@@ -28,6 +28,12 @@
       "run_count": 12,
       "auto_runs": 12,
       "last_ts": "2026-10-01 16:15:30"
+    },
+    "http://www.shenyi.de5.net": {
+      "run_count": 1,
+      "auto_runs": 1,
+      "last_ts": "2026-10-01 18:50:30",
+      "next_ts": "2026-10-01 22:23:57"
     }
   }
 }
