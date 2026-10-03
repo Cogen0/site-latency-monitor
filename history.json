@@ -2,13 +2,6 @@
   {
     "url": "http://1dh.l.cd/",
     "name": "文件中转站",
-    "latency_ms": 483.85,
-    "http_status": 200,
-    "ts": "2026-10-02 16:10:28"
-  },
-  {
-    "url": "http://1dh.l.cd/",
-    "name": "文件中转站",
     "latency_ms": 1109.52,
     "http_status": 200,
     "ts": "2026-10-02 20:10:31"
@@ -33,6 +26,13 @@
     "latency_ms": 523.77,
     "http_status": 200,
     "ts": "2026-10-03 08:25:20"
+  },
+  {
+    "url": "http://1dh.l.cd/",
+    "name": "文件中转站",
+    "latency_ms": 1327.05,
+    "http_status": 200,
+    "ts": "2026-10-03 12:25:21"
   },
   {
     "url": "http://dkjdkj.tttttttttt.top/",
@@ -72,13 +72,6 @@
   {
     "url": "http://wdzzzyx.tttttttttt.top",
     "name": "蓝莓",
-    "latency_ms": 327.58,
-    "http_status": 200,
-    "ts": "2026-10-02 16:10:28"
-  },
-  {
-    "url": "http://wdzzzyx.tttttttttt.top",
-    "name": "蓝莓",
     "latency_ms": 417.31,
     "http_status": 200,
     "ts": "2026-10-02 20:10:31"
@@ -103,6 +96,13 @@
     "latency_ms": 381.85,
     "http_status": 200,
     "ts": "2026-10-03 08:25:20"
+  },
+  {
+    "url": "http://wdzzzyx.tttttttttt.top",
+    "name": "蓝莓",
+    "latency_ms": 357.91,
+    "http_status": 200,
+    "ts": "2026-10-03 12:25:21"
   },
   {
     "url": "http://aoei.tttttttttt.top/",
