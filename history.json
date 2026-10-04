@@ -142,13 +142,6 @@
   {
     "url": "http://duan.tttttttttt.top/",
     "name": "导航中转",
-    "latency_ms": 701.26,
-    "http_status": 200,
-    "ts": "2026-10-03 12:40:30"
-  },
-  {
-    "url": "http://duan.tttttttttt.top/",
-    "name": "导航中转",
     "latency_ms": 620.88,
     "http_status": 200,
     "ts": "2026-10-03 16:45:28"
@@ -173,6 +166,13 @@
     "latency_ms": 928.95,
     "http_status": 200,
     "ts": "2026-10-04 04:45:31"
+  },
+  {
+    "url": "http://duan.tttttttttt.top/",
+    "name": "导航中转",
+    "latency_ms": 703.47,
+    "http_status": 200,
+    "ts": "2026-10-04 08:50:27"
   },
   {
     "url": "http://www.shenyi.de5.net",
