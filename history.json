@@ -107,13 +107,6 @@
   {
     "url": "http://aoei.tttttttttt.top/",
     "name": "121",
-    "latency_ms": 301.11,
-    "http_status": 200,
-    "ts": "2026-09-27 15:15:28"
-  },
-  {
-    "url": "http://aoei.tttttttttt.top/",
-    "name": "121",
     "latency_ms": 736.47,
     "http_status": 200,
     "ts": "2026-09-27 19:20:28"
@@ -138,6 +131,13 @@
     "latency_ms": 684.09,
     "http_status": 200,
     "ts": "2026-09-28 07:25:22"
+  },
+  {
+    "url": "http://aoei.tttttttttt.top/",
+    "name": "121",
+    "latency_ms": 395.84,
+    "http_status": 200,
+    "ts": "2026-10-07 19:00:50"
   },
   {
     "url": "http://duan.tttttttttt.top/",
