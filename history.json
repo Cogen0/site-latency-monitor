@@ -37,13 +37,6 @@
   {
     "url": "http://dkjdkj.tttttttttt.top/",
     "name": "云南高校论坛",
-    "latency_ms": 570.74,
-    "http_status": 200,
-    "ts": "2026-10-08 19:45:25"
-  },
-  {
-    "url": "http://dkjdkj.tttttttttt.top/",
-    "name": "云南高校论坛",
     "latency_ms": 569.57,
     "http_status": 200,
     "ts": "2026-10-08 21:45:25"
@@ -68,6 +61,13 @@
     "latency_ms": 2486.08,
     "http_status": 200,
     "ts": "2026-10-09 03:45:28"
+  },
+  {
+    "url": "http://dkjdkj.tttttttttt.top/",
+    "name": "云南高校论坛",
+    "latency_ms": 546.77,
+    "http_status": 200,
+    "ts": "2026-10-09 05:50:26"
   },
   {
     "url": "http://wdzzzyx.tttttttttt.top",
@@ -107,13 +107,6 @@
   {
     "url": "http://duan.tttttttttt.top/",
     "name": "导航中转",
-    "latency_ms": 428.9,
-    "http_status": 200,
-    "ts": "2026-10-08 09:40:29"
-  },
-  {
-    "url": "http://duan.tttttttttt.top/",
-    "name": "导航中转",
     "latency_ms": 3962.27,
     "http_status": 200,
     "ts": "2026-10-08 13:40:30"
@@ -138,6 +131,13 @@
     "latency_ms": 505.06,
     "http_status": 200,
     "ts": "2026-10-09 01:45:25"
+  },
+  {
+    "url": "http://duan.tttttttttt.top/",
+    "name": "导航中转",
+    "latency_ms": 539.43,
+    "http_status": 200,
+    "ts": "2026-10-09 05:50:26"
   },
   {
     "url": "http://www.shenyi.de5.net",
