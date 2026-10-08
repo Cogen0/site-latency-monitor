@@ -105,41 +105,6 @@
     "ts": "2026-10-08 05:25:23"
   },
   {
-    "url": "http://aoei.tttttttttt.top/",
-    "name": "121",
-    "latency_ms": 684.09,
-    "http_status": 200,
-    "ts": "2026-09-28 07:25:22"
-  },
-  {
-    "url": "http://aoei.tttttttttt.top/",
-    "name": "121",
-    "latency_ms": 395.84,
-    "http_status": 200,
-    "ts": "2026-10-07 19:00:50"
-  },
-  {
-    "url": "http://aoei.tttttttttt.top/",
-    "name": "121",
-    "latency_ms": 339.75,
-    "http_status": 200,
-    "ts": "2026-10-07 23:00:54"
-  },
-  {
-    "url": "http://aoei.tttttttttt.top/",
-    "name": "121",
-    "latency_ms": 341.38,
-    "http_status": 200,
-    "ts": "2026-10-08 03:05:25"
-  },
-  {
-    "url": "http://aoei.tttttttttt.top/",
-    "name": "121",
-    "latency_ms": 331.77,
-    "http_status": 200,
-    "ts": "2026-10-08 07:05:28"
-  },
-  {
     "url": "http://duan.tttttttttt.top/",
     "name": "导航中转",
     "latency_ms": 747.02,
