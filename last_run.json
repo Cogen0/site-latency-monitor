@@ -25,15 +25,15 @@
       "last_ts": "2026-10-08 07:05:28"
     },
     "http://duan.tttttttttt.top/": {
-      "run_count": 57,
-      "auto_runs": 57,
-      "last_ts": "2026-10-09 05:50:26"
+      "run_count": 58,
+      "auto_runs": 58,
+      "last_ts": "2026-10-09 09:55:17"
     },
     "http://www.shenyi.de5.net": {
-      "run_count": 30,
-      "auto_runs": 30,
-      "last_ts": "2026-10-09 04:00:45",
-      "next_ts": "2026-10-09 09:52:26"
+      "run_count": 31,
+      "auto_runs": 31,
+      "last_ts": "2026-10-09 09:55:17",
+      "next_ts": "2026-10-09 14:10:30"
     }
   }
 }
