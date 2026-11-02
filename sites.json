@@ -49,6 +49,18 @@
       "random_min_hours": 1,
       "random_max_hours": 12,
       "window": null
+    },
+    {
+      "name": "导航",
+      "url": "http://home1.de5.net",
+      "enabled": true,
+      "mode": "window_runs",
+      "interval_hours": 4,
+      "random_min_hours": 1,
+      "random_max_hours": 12,
+      "window": null,
+      "window_hours": 24,
+      "runs": 1
     }
   ]
 }
