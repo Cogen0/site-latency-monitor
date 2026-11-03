@@ -30,10 +30,10 @@
       "last_ts": "2026-11-03 23:30:38"
     },
     "http://www.shenyi.de5.net": {
-      "run_count": 128,
-      "auto_runs": 127,
-      "last_ts": "2026-11-03 16:40:30",
-      "next_ts": "2026-11-04 00:30:34"
+      "run_count": 129,
+      "auto_runs": 128,
+      "last_ts": "2026-11-04 00:30:40",
+      "next_ts": "2026-11-04 12:22:05"
     },
     "http://home1.de5.net": {
       "run_count": 2,
