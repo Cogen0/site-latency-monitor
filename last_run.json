@@ -10,9 +10,9 @@
       "auto_runs": 232
     },
     "http://dkjdkj.tttttttttt.top/": {
-      "last_ts": "2026-11-04 05:05:24",
-      "run_count": 464,
-      "auto_runs": 457
+      "last_ts": "2026-11-04 07:05:26",
+      "run_count": 465,
+      "auto_runs": 458
     },
     "http://wdzzzyx.tttttttttt.top": {
       "last_ts": "2026-11-04 03:35:29",
@@ -36,12 +36,12 @@
       "next_ts": "2026-11-04 12:22:05"
     },
     "http://home1.de5.net": {
-      "run_count": 2,
-      "auto_runs": 1,
-      "last_ts": "2026-11-03 07:00:49",
-      "window_start": "2026-11-03 07:00:49",
+      "run_count": 3,
+      "auto_runs": 2,
+      "last_ts": "2026-11-04 07:05:26",
+      "window_start": "2026-11-04 07:05:26",
       "window_done": 0,
-      "window_next": "2026-11-05 00:41:00"
+      "window_next": "2026-11-05 18:12:06"
     }
   }
 }
