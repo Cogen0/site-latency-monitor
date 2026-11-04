@@ -36,12 +36,12 @@
       "next_ts": "2026-11-05 07:38:24"
     },
     "http://home1.de5.net": {
-      "run_count": 3,
-      "auto_runs": 2,
-      "last_ts": "2026-11-04 07:05:26",
-      "window_start": "2026-11-04 07:05:26",
+      "run_count": 4,
+      "auto_runs": 3,
+      "last_ts": "2026-11-05 07:10:25",
+      "window_start": "2026-11-05 07:10:25",
       "window_done": 0,
-      "window_next": "2026-11-05 18:12:06"
+      "window_next": "2026-11-06 07:12:09"
     }
   }
 }
