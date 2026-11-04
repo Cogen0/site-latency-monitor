@@ -37,13 +37,6 @@
   {
     "url": "http://dkjdkj.tttttttttt.top/",
     "name": "云南高校论坛",
-    "latency_ms": 481.89,
-    "http_status": 200,
-    "ts": "2026-11-03 23:00:47"
-  },
-  {
-    "url": "http://dkjdkj.tttttttttt.top/",
-    "name": "云南高校论坛",
     "latency_ms": 319.86,
     "http_status": 200,
     "ts": "2026-11-04 01:00:48"
@@ -68,6 +61,13 @@
     "latency_ms": 548.08,
     "http_status": 200,
     "ts": "2026-11-04 07:05:26"
+  },
+  {
+    "url": "http://dkjdkj.tttttttttt.top/",
+    "name": "云南高校论坛",
+    "latency_ms": 529.0,
+    "http_status": 200,
+    "ts": "2026-11-04 09:10:30"
   },
   {
     "url": "http://wdzzzyx.tttttttttt.top",
