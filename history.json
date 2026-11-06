@@ -37,13 +37,6 @@
   {
     "url": "http://dkjdkj.tttttttttt.top/",
     "name": "云南高校论坛",
-    "latency_ms": 502.89,
-    "http_status": 200,
-    "ts": "2026-11-06 04:00:41"
-  },
-  {
-    "url": "http://dkjdkj.tttttttttt.top/",
-    "name": "云南高校论坛",
     "latency_ms": 468.38,
     "http_status": 200,
     "ts": "2026-11-06 06:05:20"
@@ -68,6 +61,13 @@
     "latency_ms": 407.47,
     "http_status": 200,
     "ts": "2026-11-06 12:10:26"
+  },
+  {
+    "url": "http://dkjdkj.tttttttttt.top/",
+    "name": "云南高校论坛",
+    "latency_ms": 491.43,
+    "http_status": 200,
+    "ts": "2026-11-06 14:10:26"
   },
   {
     "url": "http://wdzzzyx.tttttttttt.top",
@@ -142,13 +142,6 @@
   {
     "url": "http://www.shenyi.de5.net",
     "name": "森乙",
-    "latency_ms": 726.02,
-    "http_status": 200,
-    "ts": "2026-11-05 07:40:24"
-  },
-  {
-    "url": "http://www.shenyi.de5.net",
-    "name": "森乙",
     "latency_ms": 568.59,
     "http_status": 200,
     "ts": "2026-11-05 16:50:25"
@@ -173,6 +166,13 @@
     "latency_ms": 1144.4,
     "http_status": 200,
     "ts": "2026-11-06 11:20:24"
+  },
+  {
+    "url": "http://www.shenyi.de5.net",
+    "name": "森乙",
+    "latency_ms": 406.11,
+    "http_status": 200,
+    "ts": "2026-11-06 14:10:26"
   },
   {
     "url": "http://home1.de5.net",
