@@ -177,13 +177,6 @@
   {
     "url": "http://home1.de5.net",
     "name": "导航",
-    "latency_ms": 650.5,
-    "http_status": 200,
-    "ts": "2026-11-09 07:20:24"
-  },
-  {
-    "url": "http://home1.de5.net",
-    "name": "导航",
     "latency_ms": 724.4,
     "http_status": 200,
     "ts": "2026-11-10 07:20:25"
@@ -208,5 +201,12 @@
     "latency_ms": 672.51,
     "http_status": 200,
     "ts": "2026-11-13 07:25:23"
+  },
+  {
+    "url": "http://home1.de5.net",
+    "name": "导航",
+    "latency_ms": 622.6,
+    "http_status": 200,
+    "ts": "2026-11-14 07:30:35"
   }
 ]
