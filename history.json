@@ -2,13 +2,6 @@
   {
     "url": "http://1dh.l.cd/",
     "name": "文件中转站",
-    "latency_ms": 926.65,
-    "http_status": 200,
-    "ts": "2026-11-17 14:30:33"
-  },
-  {
-    "url": "http://1dh.l.cd/",
-    "name": "文件中转站",
     "latency_ms": 1109.29,
     "http_status": 200,
     "ts": "2026-11-17 18:35:21"
@@ -33,6 +26,13 @@
     "latency_ms": 1173.04,
     "http_status": 200,
     "ts": "2026-11-18 06:40:26"
+  },
+  {
+    "url": "http://1dh.l.cd/",
+    "name": "文件中转站",
+    "latency_ms": 531.66,
+    "http_status": 200,
+    "ts": "2026-11-18 10:45:29"
   },
   {
     "url": "http://dkjdkj.tttttttttt.top/",
@@ -72,13 +72,6 @@
   {
     "url": "http://wdzzzyx.tttttttttt.top",
     "name": "蓝莓",
-    "latency_ms": 466.6,
-    "http_status": 200,
-    "ts": "2026-11-17 14:30:33"
-  },
-  {
-    "url": "http://wdzzzyx.tttttttttt.top",
-    "name": "蓝莓",
     "latency_ms": 433.6,
     "http_status": 200,
     "ts": "2026-11-17 18:35:21"
@@ -105,11 +98,11 @@
     "ts": "2026-11-18 06:40:26"
   },
   {
-    "url": "http://duan.tttttttttt.top/",
-    "name": "导航中转",
-    "latency_ms": 507.45,
+    "url": "http://wdzzzyx.tttttttttt.top",
+    "name": "蓝莓",
+    "latency_ms": 496.61,
     "http_status": 200,
-    "ts": "2026-11-17 14:30:33"
+    "ts": "2026-11-18 10:45:29"
   },
   {
     "url": "http://duan.tttttttttt.top/",
@@ -138,6 +131,13 @@
     "latency_ms": 398.95,
     "http_status": 200,
     "ts": "2026-11-18 06:40:26"
+  },
+  {
+    "url": "http://duan.tttttttttt.top/",
+    "name": "导航中转",
+    "latency_ms": 512.69,
+    "http_status": 200,
+    "ts": "2026-11-18 10:45:29"
   },
   {
     "url": "http://www.shenyi.de5.net",
