@@ -142,13 +142,6 @@
   {
     "url": "http://www.shenyi.de5.net",
     "name": "森乙",
-    "latency_ms": 382.9,
-    "http_status": 200,
-    "ts": "2026-11-20 02:05:19"
-  },
-  {
-    "url": "http://www.shenyi.de5.net",
-    "name": "森乙",
     "latency_ms": 659.36,
     "http_status": 200,
     "ts": "2026-11-20 13:20:24"
@@ -173,6 +166,13 @@
     "latency_ms": 604.15,
     "http_status": 200,
     "ts": "2026-11-21 06:25:29"
+  },
+  {
+    "url": "http://www.shenyi.de5.net",
+    "name": "森乙",
+    "latency_ms": 862.08,
+    "http_status": 200,
+    "ts": "2026-11-21 10:40:28"
   },
   {
     "url": "http://home1.de5.net",
