@@ -30,18 +30,18 @@
       "last_ts": "2026-11-28 05:05:22"
     },
     "http://www.shenyi.de5.net": {
-      "run_count": 212,
-      "auto_runs": 211,
-      "last_ts": "2026-11-28 04:25:22",
-      "next_ts": "2026-11-28 08:15:35"
+      "run_count": 213,
+      "auto_runs": 212,
+      "last_ts": "2026-11-28 08:20:26",
+      "next_ts": "2026-11-28 12:04:02"
     },
     "http://home1.de5.net": {
-      "run_count": 26,
-      "auto_runs": 25,
-      "last_ts": "2026-11-27 08:15:29",
-      "window_start": "2026-11-27 08:15:29",
+      "run_count": 27,
+      "auto_runs": 26,
+      "last_ts": "2026-11-28 08:20:26",
+      "window_start": "2026-11-28 08:20:26",
       "window_done": 0,
-      "window_next": "2026-11-28 12:27:10"
+      "window_next": "2026-11-30 00:38:35"
     }
   }
 }
